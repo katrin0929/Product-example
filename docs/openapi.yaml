@@ -1,0 +1,731 @@
+openapi: 3.0.3
+info:
+  title: Frontend Training App API
+  version: 1.0.0
+  description: REST API contract required by the Vue SPA (no backend implementation here).
+servers:
+  - url: https://api.example.com/v1
+
+tags:
+  - name: Auth
+  - name: User
+  - name: Documents
+  - name: Payments
+  - name: Invoices
+  - name: Notifications
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Email is invalid
+        details:
+          type: object
+          additionalProperties: true
+        requestId:
+          type: string
+          example: req_01HXYZ...
+
+    AuthTokens:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          description: Access token TTL in seconds
+          example: 900
+
+    UserPublic:
+      type: object
+      required: [id, email, emailVerified, name]
+      properties:
+        id:
+          type: string
+          example: usr_123
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        name:
+          type: string
+          example: Stan
+        avatarUrl:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        address:
+          type: object
+          nullable: true
+          properties:
+            line1: { type: string, nullable: true }
+            line2: { type: string, nullable: true }
+            city: { type: string, nullable: true }
+            region: { type: string, nullable: true }
+            postalCode: { type: string, nullable: true }
+            country: { type: string, nullable: true }
+
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+
+    LoginRequest:
+      type: object
+      required: [email, password, rememberMe]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+        rememberMe: { type: boolean }
+
+    LoginResponse:
+      type: object
+      required: [tokens, user]
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokens'
+        user:
+          $ref: '#/components/schemas/UserPublic'
+
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+
+    VerifyEmailRequest:
+      type: object
+      required: [email, code]
+      properties:
+        email: { type: string, format: email }
+        code:
+          type: string
+          description: OTP code from email
+          example: "123456"
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, newPassword]
+      properties:
+        token: { type: string }
+        newPassword: { type: string, minLength: 8 }
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name: { type: string }
+        phone: { type: string, nullable: true }
+        address:
+          $ref: '#/components/schemas/UserPublic/properties/address'
+
+    ChangeEmailRequest:
+      type: object
+      required: [newEmail]
+      properties:
+        newEmail: { type: string, format: email }
+
+    ConfirmEmailChangeRequest:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, example: "123456" }
+
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string }
+        newPassword: { type: string, minLength: 8 }
+
+    ExportRequestResponse:
+      type: object
+      required: [exportId]
+      properties:
+        exportId: { type: string, example: exp_123 }
+
+    ExportStatus:
+      type: object
+      required: [exportId, status]
+      properties:
+        exportId: { type: string }
+        status:
+          type: string
+          enum: [pending, ready, failed]
+        downloadUrl:
+          type: string
+          nullable: true
+
+    DocumentItem:
+      type: object
+      required: [id, fileName, mimeType, size, createdAt]
+      properties:
+        id: { type: string, example: doc_123 }
+        fileName: { type: string, example: passport.pdf }
+        mimeType: { type: string, example: application/pdf }
+        size: { type: integer, example: 123456 }
+        createdAt: { type: string, format: date-time }
+
+    Product:
+      type: object
+      required: [id, title, amount, currency]
+      properties:
+        id: { type: string, example: prd_basic }
+        title: { type: string, example: Basic Pack }
+        description: { type: string, nullable: true }
+        amount: { type: integer, example: 1999, description: Minor units (e.g. cents) }
+        currency: { type: string, example: USD }
+
+    CheckoutRequest:
+      type: object
+      required: [productId]
+      properties:
+        productId: { type: string }
+        promoCode: { type: string, nullable: true }
+
+    Checkout:
+      type: object
+      required: [checkoutId, productId, amount, currency, status]
+      properties:
+        checkoutId: { type: string, example: chk_123 }
+        productId: { type: string }
+        amount: { type: integer }
+        currency: { type: string }
+        status:
+          type: string
+          enum: [pending, paid, failed]
+        createdAt: { type: string, format: date-time }
+
+    PayCheckoutResponse:
+      type: object
+      required: [checkoutId, status]
+      properties:
+        checkoutId: { type: string }
+        status:
+          type: string
+          enum: [paid, failed]
+        paymentId: { type: string, nullable: true }
+
+    Payment:
+      type: object
+      required: [id, checkoutId, amount, currency, status, createdAt]
+      properties:
+        id: { type: string, example: pay_123 }
+        checkoutId: { type: string }
+        amount: { type: integer }
+        currency: { type: string }
+        status:
+          type: string
+          enum: [pending, paid, failed]
+        createdAt: { type: string, format: date-time }
+
+    Invoice:
+      type: object
+      required: [id, paymentId, number, createdAt]
+      properties:
+        id: { type: string, example: inv_123 }
+        paymentId: { type: string }
+        number: { type: string, example: "INV-2026-0001" }
+        createdAt: { type: string, format: date-time }
+        downloadUrl: { type: string, nullable: true }
+
+    PromoValidateRequest:
+      type: object
+      required: [code, productId]
+      properties:
+        code: { type: string }
+        productId: { type: string }
+
+    PromoValidateResponse:
+      type: object
+      required: [valid]
+      properties:
+        valid: { type: boolean }
+        discountAmount:
+          type: integer
+          nullable: true
+        message:
+          type: string
+          nullable: true
+
+    Notification:
+      type: object
+      required: [id, type, title, createdAt, read]
+      properties:
+        id: { type: string, example: ntf_123 }
+        type: { type: string, example: payment.status_updated }
+        title: { type: string, example: Payment status updated }
+        body: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        read: { type: boolean }
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register user (email + password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Verify email with OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyEmailRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Resend email verification OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login (returns tokens + user)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tokens]
+                properties:
+                  tokens: { $ref: '#/components/schemas/AuthTokens' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout (invalidate refresh token if supported)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: No Content }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Send password reset email link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password by token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResetPasswordRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me:
+    get:
+      tags: [User]
+      summary: Get current user profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserPublic' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [User]
+      summary: Update profile fields
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserPublic' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    delete:
+      tags: [User]
+      summary: Delete account
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: No Content }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/avatar:
+    post:
+      tags: [User]
+      summary: Upload avatar
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl: { type: string }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me/change-email:
+    post:
+      tags: [User]
+      summary: Start email change (sends OTP to new email)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangeEmailRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me/confirm-email-change:
+    post:
+      tags: [User]
+      summary: Confirm email change with OTP
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmEmailChangeRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me/change-password:
+    post:
+      tags: [User]
+      summary: Change password
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me/export:
+    post:
+      tags: [User]
+      summary: Request data export
+      security: [{ bearerAuth: [] }]
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportRequestResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/export/{exportId}:
+    get:
+      tags: [User]
+      summary: Get export status (and downloadUrl when ready)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: exportId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportStatus' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/documents:
+    get:
+      tags: [Documents]
+      summary: List user documents
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DocumentItem' }
+    post:
+      tags: [Documents]
+      summary: Upload a document
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me/documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Download document (or return downloadUrl)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [Documents]
+      summary: Delete document
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /products:
+    get:
+      tags: [Payments]
+      summary: List products
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Product' }
+
+  /promo/validate:
+    post:
+      tags: [Payments]
+      summary: Validate promo code for product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PromoValidateRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PromoValidateResponse' }
+
+  /checkout:
+    post:
+      tags: [Payments]
+      summary: Create checkout
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CheckoutRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Checkout' }
+
+  /checkout/{checkoutId}:
+    get:
+      tags: [Payments]
+      summary: Get checkout status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: checkoutId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Checkout' }
+
+  /checkout/{checkoutId}/pay:
+    post:
+      tags: [Payments]
+      summary: Pseudo-pay checkout (training flow)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: checkoutId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCheckoutResponse' }
+
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List payments
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Payment' }
+
+  /invoices:
+    get:
+      tags: [Invoices]
+      summary: List invoices
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Invoice' }
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Notification' }
