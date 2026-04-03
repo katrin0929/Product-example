@@ -1,0 +1,9 @@
+@font-face {
+    font-weight: 400;
+    font-family: 'Inter';
+    font-style: normal;
+    src:
+     url('/fonts/Inter/Inter-VariableFont_opsz,wght.ttff') format('truetype');
+    text-rendering: optimizelegibility;
+    font-display: swap;
+}
