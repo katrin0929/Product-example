@@ -1,121 +1,87 @@
-<script>
-import Button from '@/components/Button.vue';
-import Header from '@/components/Header.vue';
+<script setup> 
+import { useVerify } from '@/composables/useVerify'
 
-export default {
-    components: {Header, Button}
-}
+const { verify } = useVerify()
+
+ 
 </script>
 
 <template>
-    <Header/>
-    <div class="verify-page">
-        <div class="verify-page-window">
-            <div class="container">
-                <div class="verify-page-window-title">Verify your email</div>
-                <div class="verify-page-window-text">We've sent a 6-digit code to your email</div>
-                <div class="code-fields">
-                    <div class="field1"></div>
-                    <div class="field2"></div>
-                    <div class="field3"></div>
-                    <div class="field4"></div>
-                    <div class="field5"></div>
-                    <div class="field6"></div>
-                </div>
-                <div class="button-verify">
-                    <Button
-                        text="Verify"
-                        background="#5048E5"
-                    />
-                </div>
-                <div class="stopwatch">
-                     <div class="minutes">00</div>
-                     <div class="seconds">00</div>
-                </div>  
-                <div class="resend-code">
-                    <span>Didn't receive a code?<a href="!#">Resend code</a></span>
-                </div>                    
-            </div>
+  <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    <!-- Navigation -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-3 bg-white dark:bg-slate-900">
+      <div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+        <div class="size-6 text-primary">
+          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+          </svg>
         </div>
-    </div> 
+        <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">DEVFED</h2>
+      </div>
+      <button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-[20px]">help</span>
+      </button>
+    </header>
+
+    <!-- Main Content (Centered OTP Card) -->
+    <main class="flex flex-1 items-center justify-center px-4 py-12">
+      <div class="w-full max-w-[480px] bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 flex flex-col gap-8">
+        <!-- Header Text -->
+        <div class="flex flex-col gap-2 text-center">
+          <h1 class="text-slate-900 dark:text-slate-100 text-3xl font-bold leading-tight tracking-tight">Verify your email</h1>
+          <p class="text-slate-500 dark:text-slate-400 text-base">We've sent a 6-digit code to your email</p>
+        </div>
+
+        <!-- OTP Inputs -->
+        <div class="flex justify-between gap-2 sm:gap-4">
+          <input 
+            v-for="i in 6" 
+            :key="i"
+            type="text" 
+            maxlength="1" 
+            inputmode="numeric"
+            v-model="otp"
+            class="w-full h-14 text-center text-xl font-bold rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-0 text-slate-900 dark:text-white"
+          />
+        </div>
+
+        <!-- Verify Button -->
+        <form @submit.prevent="verify">
+          <button class="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-lg font-bold transition-colors shadow-lg shadow-primary/20">
+            Verify
+          </button>
+        </form>
+
+        <!-- Timer & Resend -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex gap-2">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span class="text-slate-900 dark:text-white font-bold text-lg">00</span>
+            </div>
+            <div class="flex items-center text-slate-400 dark:text-slate-600 font-bold">:</div>
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span class="text-slate-900 dark:text-white font-bold text-lg">59</span>
+            </div>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Didn't receive a code? 
+            <button class="text-primary font-semibold hover:underline bg-transparent border-0 p-0">Resend code</button>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Decoration -->
+    <footer class="p-10 text-center">
+      <p class="text-slate-400 dark:text-slate-600 text-xs">
+        © 2024 DEVFED Technology Group. Secure verification process.
+      </p>
+    </footer>
+  </div>
 </template>
 
-<style scoped>
-.verify-page {
-    display: flex;
-    flex-direction: column;
-    margin: 151px 515px 151px 515px
-}
-.verify-page-window {
-    min-width: 443px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 2px 2px 4px rgba(168, 168, 168, 0.5);
-}
-.container {
-    padding: 32px 32px 24px 32px;
-}
-.verify-page-window-title {
-    text-align: center;
-    margin-bottom: 8px;
-    font-weight: bold;
-    font-size: 30px;
-    line-height: 37px;
-}
-.verify-page-window-text {
-    text-align: center;
-    margin-bottom: 32px;
-    font-weight: normal;
-    font-size: 16px;
-    line-height: 24px;
-    opacity: 60%;
-}
-.code-fields {
-    display: grid;
-    margin-bottom: 32px;
-    grid-template-columns: repeat(6, 1fr)  
-}
-.field1, .field2, .field3, .field4, .field5, .field6 {
-    min-height: 56px;
-    border-radius: 8px;
-    border: 2px solid #E2E8F0;
-}
-
-.button-verify Button {
-    margin-bottom: 32px;
-    font-weight: bold ;
-    font-size: 18px;
-    line-height: 24px;
-    color: #FFFF;
-}
-.stopwatch {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-.minutes, .seconds {
-    padding: 9px 11px;
-    background: #F1F5F9;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    font-weight: bold ;
-    font-size: 18px;
-    line-height: 28px;
-}
-
-.resend-code {
-    text-align: center;
-    font-weight: medium;
-    font-size: 14px;
-    line-height: 20px;
-    color: #64748B;
-}
-
-.resend-code a {
-    margin-left: 5px;
-    font-weight: bold;
-    color: #5048E5;
-}
-
+<style>
+/* button:nth-child(3) {
+  background-color: rgb(15 23 42)
+} */
 </style>

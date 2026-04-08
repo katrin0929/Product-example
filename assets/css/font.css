@@ -3,7 +3,7 @@
     font-family: 'Inter';
     font-style: normal;
     src:
-     url('/public/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+     url('/fonts/Inter/Inter-VariableFont_opsz,wght.ttff') format('truetype');
     text-rendering: optimizelegibility;
     font-display: swap;
 }

@@ -43,9 +43,11 @@ router.post('/register', asyncHandler(async (req, res) => {
   };
 
   users.insert(user);
-  generateOtp('verify', email);
+  const code = generateOtp('verify', email);
 
-  res.status(201).json({ message: 'User registered. Check console for OTP code.' });
+  res.status(201).json({ 
+    code
+  });
 }));
 
 // POST /auth/verify-email

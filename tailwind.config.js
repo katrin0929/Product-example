@@ -1,0 +1,73 @@
+export default {
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        'on-tertiary-fixed': '#351000',
+        'secondary-fixed': '#e2dfff',
+        'on-background': '#131b2e',
+        'surface-container-low': '#f2f3ff',
+        'on-surface': '#131b2e',
+        'on-primary-fixed-variant': '#3323cc',
+        'surface-container-lowest': '#ffffff',
+        'primary-fixed-dim': '#c3c0ff',
+        'secondary-container': '#b6b4ff',
+        'on-secondary-fixed': '#140f54',
+        'inverse-primary': '#c3c0ff',
+        'inverse-surface': '#283044',
+        'tertiary-fixed-dim': '#ffb695',
+        'surface-tint': '#4d44e3',
+        'surface-bright': '#faf8ff',
+        'on-surface-variant': '#464555',
+        "primary": "#5048e5",
+        "background-light": "#f6f6f8",
+        "background-dark": "#121121",
+        error: '#ba1a1a',
+        'tertiary-fixed': '#ffdbcc',
+        'error-container': '#ffdad6',
+        'primary-fixed': '#e2dfff',
+        'on-tertiary': '#ffffff',
+        'on-tertiary-container': '#ffd2be',
+        'on-error-container': '#93000a',
+        background: '#faf8ff',
+        'secondary-fixed-dim': '#c3c0ff',
+        'surface-container-highest': '#dae2fd',
+        'on-primary': '#ffffff',
+        'surface-container-high': '#e2e7ff',
+        'tertiary-container': '#a44100',
+        outline: '#777587',
+        'on-primary-fixed': '#0f0069',
+        'surface-container': '#eaedff',
+        'on-error': '#ffffff',
+        'surface-dim': '#d2d9f4',
+        'on-tertiary-fixed-variant': '#7b2f00',
+        tertiary: '#7e3000',
+        primary: '#3525cd',
+        'on-primary-container': '#dad7ff',
+        'inverse-on-surface': '#eef0ff',
+        'on-secondary-fixed-variant': '#413f82',
+        'primary-container': '#4f46e5',
+        'on-secondary-container': '#454386',
+        'outline-variant': '#c7c4d8',
+        secondary: '#58579b',
+        'surface-variant': '#dae2fd',
+        'on-secondary': '#ffffff',
+        surface: '#faf8ff'
+      },
+      borderRadius: {
+        DEFAULT: '0.25rem',
+        lg: '0.5rem',
+        xl: '0.75rem',
+        full: '9999px'
+      },
+      fontFamily: {
+        headline: ['Manrope'],
+        body: ['Inter'],
+        label: ['Inter'],
+        display: ["Inter"]
+      }
+    }
+  },
+  plugins: []
+}
