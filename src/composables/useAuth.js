@@ -1,11 +1,13 @@
 import { ref } from 'vue'
 import  router  from '../router/index'
+import { utils } from '../utils'
 
 export function useAuth() {
   const baseUrl = "http://localhost:3009"
   const email = ref('')
   const password = ref('')
   const checkbox = ref(false)
+  const { setTokens } = utils()
 
     async function signIn() {
         const res = await fetch(`${baseUrl}/auth/login`, {
@@ -21,11 +23,13 @@ export function useAuth() {
 
         
         if (res.ok) {
+            const { tokens } = await res.json()
+            const { accessToken, refreshToken, expiresIn } = tokens
+            setTokens(accessToken, refreshToken, expiresIn)
             router.push('/Dashboard');
         } else {
             alert("privet")
         }
-        return await res.json()
     }
 
   return { baseUrl, email, password, checkbox, signIn}

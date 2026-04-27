@@ -9,6 +9,7 @@ const notifications = new Store('notifications.json');
 const documents = new Store('documents.json');
 const refreshTokens = new Store('refresh-tokens.json');
 const exports_ = new Store('exports.json');
+const projects = new Store('projects.json');
 
 // Seed products
 products.writeAll([
@@ -26,5 +27,6 @@ notifications.writeAll([]);
 documents.writeAll([]);
 refreshTokens.writeAll([]);
 exports_.writeAll([]);
+projects.writeAll([]);
 
 console.log('Seed complete. Data files created in data/');

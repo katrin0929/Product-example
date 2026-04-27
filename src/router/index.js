@@ -3,6 +3,8 @@ import LogIn from '../pages/LogIn.vue'
 import Register from '../pages/Register.vue'
 import Verify from '../pages/Verify.vue'
 import Dashboard from '../pages/Dashboard.vue'
+import Projects from '../pages/Projects.vue'
+import ProjectSettings from '../pages/ProjectSettings.vue'
 
 const routes = [
   {
@@ -26,6 +28,18 @@ const routes = [
     path: '/Dashboard',
     name: 'Dashboard',
     component: Dashboard,
+  },
+
+        {
+    path: '/Projects',
+    name: 'Projects',
+    component: Projects,
+  },
+
+    {
+    path: '/ProjSet',
+    name: 'ProjectSettings',
+    component: ProjectSettings,
   },
 
 ]

@@ -15,7 +15,6 @@ const router = Router();
 
 // POST /auth/register
 router.post('/register', asyncHandler(async (req, res) => {
-  
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -46,15 +45,13 @@ router.post('/register', asyncHandler(async (req, res) => {
   const code = generateOtp('verify', email);
 
   res.status(201).json({ 
-    code
+    code,
   });
 }));
 
 // POST /auth/verify-email
 router.post('/verify-email', asyncHandler((req, res) => {
   const { email, code } = req.body;
-  console.log(req.body);
-  
 
   if (!email || !code) {
     throw new AppError(400, 'VALIDATION_ERROR', 'Email and code are required');
@@ -92,13 +89,9 @@ router.post('/resend-verification', asyncHandler((req, res) => {
 
 // POST /auth/login
 router.post('/login', asyncHandler(async (req, res) => {
-  
-  
   const { email, password, rememberMe } = req.body;
 
   if (!email || !password) {
-    console.log(email);
-    
     throw new AppError(400, 'VALIDATION_ERROR', 'Email and password are required');
   }
 

@@ -10,5 +10,6 @@ module.exports = {
   chkId: () => makeId('chk'),
   ntfId: () => makeId('ntf'),
   expId: () => makeId('exp'),
+  prjId: () => makeId('prj'),
   reqId: () => makeId('req'),
 };
