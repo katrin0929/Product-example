@@ -27,7 +27,6 @@ export function useRegistration() {
 
   async function handleSubmit() {
     const res = await createAccount();
-    console.log(res);
     setData(email.value, res.code)
   }
 

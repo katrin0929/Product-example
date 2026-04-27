@@ -6,17 +6,15 @@ export function useVerify() {
   const baseUrl = "http://localhost:3009"
   const email = ref('')
   const otp = ref('') 
-  const {getData} = utils()
+  const { getData } = utils()
 
-//   написать  функцию которая забирает данные из локал стор по ключу дата , получаем емейл и отп и записываем эти значения в емейл велью и отп велью
 function getDataFromLocalStorage() {
     const data = getData()
     email.value = data.email,
     otp.value = data.otp   
 }
 
-  async function verify() {
-    // вызов функции 
+  async function verify() { 
     getDataFromLocalStorage()
     const res = await fetch(`${baseUrl}/auth/verify-email`, {
         method: 'POST',
