@@ -2,7 +2,6 @@ import { ref } from 'vue'
 import  router  from '../router/index'
 import { utils } from '../utils'
 
-
 export function useDashboard() {
 
  
@@ -10,16 +9,7 @@ export function useDashboard() {
   const email = ref('')
   const password = ref('')
   const checkbox = ref(false)
-  const isModalOpen = ref(false);
   const { getTokens } = utils()
-
-  function openModal() {
-    isModalOpen.value = true;
-  }
-
-  function closeModal() {
-    isModalOpen.value = false;
-  }
 
     async function getMe() {
         const { accessToken } = getTokens()
@@ -38,14 +28,6 @@ export function useDashboard() {
         return await res.json()
     }
 
-  return {
-    baseUrl,
-    email,
-    password,
-    checkbox,
-    isModalOpen,
-    openModal,
-    closeModal
-  };
+  return { baseUrl, email, password, checkbox, signIn}
   
 }
