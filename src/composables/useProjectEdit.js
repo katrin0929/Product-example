@@ -14,7 +14,8 @@ export function useProjectEdit() {
     }
 
    async function saveChange(projectId, projectSettings) {
-    console.log(projectSettings);
+    const projSet = Object.assign({}, projectSettings)
+    console.log(projSet.title);
     
      const { accessToken } = getTokens();
      const res = await fetch(`${baseUrl}/projects/${projectId}`, {
@@ -23,13 +24,13 @@ export function useProjectEdit() {
          "Content-Type": "application/json",
          Authorization: `Bearer ${accessToken}`,
        },
-       body: {
+       body: JSON.stringify({
          title: projectSettings.title,
          status: projectSettings.status,
          description: projectSettings.description,
-         team: ["string"],
+         team: ["usr_4ed9f3d9"],
          icon: "string",
-       },
+       }),
      });
 
      return await res.json();

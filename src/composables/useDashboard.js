@@ -4,12 +4,20 @@ import { utils } from '../utils'
 
 export function useDashboard() {
 
- 
   const baseUrl = "http://localhost:3009"
   const email = ref('')
   const password = ref('')
   const checkbox = ref(false)
+  const isModalOpen = ref(false);
   const { getTokens } = utils()
+
+  function openModal() {
+    isModalOpen.value = true;
+  }
+
+  function closeModal() {
+    isModalOpen.value = false;
+  }
 
     async function getMe() {
         const { accessToken } = getTokens()
@@ -28,6 +36,13 @@ export function useDashboard() {
         return await res.json()
     }
 
-  return { baseUrl, email, password, checkbox, signIn}
-  
+  return {
+    baseUrl,
+    email,
+    password,
+    checkbox,
+    isModalOpen,
+    openModal,
+    closeModal
+  };
 }

@@ -11,6 +11,8 @@ router.use(requireAuth);
 
 // GET /projects — list projects where user is in team
 router.get('/', asyncHandler((req, res) => {
+  console.log(`это айди пользователя - ${req.user.id}`);
+  
   const userProjects = projects
     .readAll()
     .filter((p) => p.team.includes(req.user.id));
@@ -29,7 +31,7 @@ router.post('/', asyncHandler((req, res) => {
     throw new AppError(400, 'VALIDATION_ERROR', 'Title is required');
   }
 
-  const validStatuses = ['active', 'archived', 'draft'];
+  const validStatuses = ['Active', 'Archived', 'Draft', 'Paused'];
   if (status && !validStatuses.includes(status)) {
     throw new AppError(400, 'VALIDATION_ERROR', `Status must be one of: ${validStatuses.join(', ')}`);
   }
@@ -81,7 +83,7 @@ router.patch('/:id', asyncHandler((req, res) => {
   if (icon !== undefined) updates.icon = icon;
 
   if (status !== undefined) {
-    const validStatuses = ['active', 'archived', 'draft'];
+    const validStatuses = ['Active', 'Archived', 'Draft', 'Paused'];
     if (!validStatuses.includes(status)) {
       throw new AppError(400, 'VALIDATION_ERROR', `Status must be one of: ${validStatuses.join(', ')}`);
     }
