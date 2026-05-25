@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 
 
 const { isModalOpen, openModal, closeModal, Modal, getProjects } = useProjects()
-const { goToSettings } = useProjectEdit()
+const { openProjectEdit } = useProjectEdit()
 
 
 let projects = ref([])
@@ -150,7 +150,7 @@ onMounted(async () => {
                   <button  type="button"
                     class="p-2 text-outline hover:text-primary transition-colors rounded-sm hover:bg-surface-container-high opacity-0 group-hover:opacity-100"
                   >
-                    <span class="material-symbols-outlined" @click="goToSettings(project.id)">edit</span>
+                    <span class="material-symbols-outlined" @click="openProjectEdit(project.id)">edit</span>
                   </button>
                   <button
                     class="p-2 text-outline hover:text-on-surface transition-colors rounded-sm hover:bg-surface-container-high"

@@ -6,31 +6,32 @@ import { utils } from "../utils";
 export function useProjectEdit() {
     const baseUrl = "http://localhost:3009";
     const { getTokens } = utils()
+    let defaultState = {}
 
 
-    function goToSettings(id) {
-        router.push(`/ProjSet/${id}`);
-        
+
+    function openProjectEdit(id) {
+      router.push(`/ProjSet/${id}`);
     }
 
    async function saveChange(projectId, projectSettings) {
-    const projSet = Object.assign({}, projectSettings)
-    console.log(projSet.title);
+    
     
      const { accessToken } = getTokens();
+    const fields = ["title", "status", "description"];
+    const data = fields.reduce((acc, field) => {
+    if (defaultState[field] !== projectSettings[field]) {
+        acc[field] = projectSettings[field];
+    }
+    return acc;
+    }, {});
      const res = await fetch(`${baseUrl}/projects/${projectId}`, {
        method: "PATCH",
        headers: {
          "Content-Type": "application/json",
          Authorization: `Bearer ${accessToken}`,
        },
-       body: JSON.stringify({
-         title: projectSettings.title,
-         status: projectSettings.status,
-         description: projectSettings.description,
-         team: ["usr_4ed9f3d9"],
-         icon: "string",
-       }),
+       body: JSON.stringify(data),
      });
 
      return await res.json();
@@ -45,11 +46,12 @@ export function useProjectEdit() {
             "Authorization": `Bearer ${accessToken}`,
           },
         });
-        
-        return await res.json();
+        const project = await res.json();
+        defaultState = {...project}
+        return project
     }
     
-    return { goToSettings, getProjectById, saveChange };
+    return { openProjectEdit, getProjectById, saveChange };
 }
 
 

@@ -11,7 +11,6 @@ router.use(requireAuth);
 
 // GET /projects — list projects where user is in team
 router.get('/', asyncHandler((req, res) => {
-  console.log(`это айди пользователя - ${req.user.id}`);
   
   const userProjects = projects
     .readAll()

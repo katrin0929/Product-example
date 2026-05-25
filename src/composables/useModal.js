@@ -13,7 +13,7 @@ export function useModal() {
     async function createProj() {
         const { accessToken } = getTokens();
         if (projName && projDescription) {
-            router.push("/ProjSet");
+            router.push("/Projects");
             const res = await fetch(`${baseUrl}/projects`, {
 
           method: "POST",
@@ -26,12 +26,13 @@ export function useModal() {
             description: projDescription.value
           })
         });
+        return await res.json();
         
 
         } else {
             alert("Обязательные поля не заполнены")
         }
-        
+      
     }
     return { baseUrl, projName, projDescription, radioPrivate, radioPublic, createProj }
 
