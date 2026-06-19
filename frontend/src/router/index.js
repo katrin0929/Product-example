@@ -6,6 +6,8 @@ import Dashboard from '../pages/Dashboard.vue'
 import Projects from '../pages/Projects.vue'
 import ProjectSettings from '../pages/ProjectSettings.vue'
 import Documents from "../pages/Documents.vue";
+import Billing from "../pages/Billing.vue";
+import Profile from "../pages/Profile.vue";
 import AppLayout from "@/components/layouts/AppLayout.vue";
 import ProjectEdit from '../pages/ProjectEdit.vue'
 
@@ -47,6 +49,18 @@ const routes = [
         path: "/Documents",
         name: "Documents",
         component: Documents,
+      },
+
+      {
+        path: "/Billing",
+        name: "Billing",
+        component: Billing,
+      },
+
+      {
+        path: "/Profile",
+        name: "Profile",
+        component: Profile,
       },
 
       {

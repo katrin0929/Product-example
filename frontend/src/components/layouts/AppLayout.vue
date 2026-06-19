@@ -7,8 +7,8 @@ const navItems = [
   { name: 'Dashboard', label: 'Dashboard', icon: 'dashboard',       to: '/Dashboard' },
   { name: 'Projects',  label: 'Projects',  icon: 'folder',          to: '/Projects'  },
   { name: 'Documents', label: 'Documents', icon: 'description',     to: '/Documents' },
-  { name: 'Billing',   label: 'Billing',   icon: 'payments',        to: null },
-  { name: 'Profile',   label: 'Profile',   icon: 'account_circle',  to: null },
+  { name: 'Billing',   label: 'Billing',   icon: 'payments',        to: '/Billing'  },
+  { name: 'Profile',   label: 'Profile',   icon: 'account_circle',  to: '/Profile'  },
 ]
 
 const bottomItems = [
