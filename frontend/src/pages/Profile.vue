@@ -1,8 +1,26 @@
 <script setup>
+import { useProfileSettings } from '@/composables/useProfileSettings';
+import { onMounted, ref } from 'vue';
+
+const { saveChange, getUserById } = useProfileSettings()
+
+let data = ref({
+    "address": {
+      "city": "",
+      "region": "",
+      "country": ""
+  }
+});
+
+
 const idDocuments = [
   { icon: 'badge', tone: 'bg-indigo-50 text-primary', title: 'Government ID', meta: 'passport.pdf · 1.2 MB', status: 'Verified', statusClass: 'bg-emerald-100 text-emerald-700' },
   { icon: 'home', tone: 'bg-amber-50 text-amber-600', title: 'Proof of Address', meta: 'utility_bill.pdf · 480 KB', status: 'In Review', statusClass: 'bg-amber-100 text-amber-700' },
 ]
+
+onMounted(async() => {
+    data.value = await getUserById()    
+})
 </script>
 
 <template>
@@ -32,15 +50,15 @@ const idDocuments = [
     <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 md:p-8 space-y-6">
       <div><h3 class="text-lg font-bold tracking-tight headline">Personal Information</h3><p class="text-sm text-on-surface-variant mt-0.5">This information appears on your invoices and receipts.</p></div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Full name</span><input value="Alex Rivera" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
-        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Phone number</span><input value="+1 (415) 555-0142" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
-        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address</span><input value="2120 Market Street, Suite 400" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
-        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">City</span><input value="San Francisco" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
-        <label class="flex flex-col relative"><span class="text-sm font-medium text-on-surface-variant pb-2">Country</span><select class="appearance-none rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option></select><span class="material-symbols-outlined absolute right-3 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span></label>
+        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Full name</span><input v-model="data.name" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Phone number</span><input  v-model="data.phone" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address</span><input v-model="data.address.region" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">City</span><input v-model="data.address.city" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col relative"><span class="text-sm font-medium text-on-surface-variant pb-2">Country</span><select v-model="data.address.country" class="appearance-none rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option></select><span class="material-symbols-outlined absolute right-3 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span></label>
       </div>
       <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
         <button type="button" class="px-5 py-2.5 rounded-lg text-on-surface text-sm font-bold hover:bg-surface-container-high transition-colors">Cancel</button>
-        <button type="button" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg text-sm font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity">Save Changes</button>
+        <button type="button" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg text-sm font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity" @click="saveChange(data)">Save Changes</button>
       </div>
     </section>
 
