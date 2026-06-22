@@ -38,6 +38,7 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 design
+.vite
 
 # Claude working artifacts (local-only)
 plans/
