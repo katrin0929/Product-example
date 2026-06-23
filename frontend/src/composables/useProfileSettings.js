@@ -12,18 +12,30 @@ export function useProfileSettings() {
     const { accessToken } = getTokens();
     const fields = [
       "name",
-      "phone",
-      "address",
-      "address.region",
-      "address.city",
-      "address.country",
+      "phone"
     ];
-    const data = fields.reduce((acc, field) => {
+    const addressFields = [
+      "line1",
+      "line2",
+      "region",
+      "city",
+      "country",
+    ]
+    const data1 = fields.reduce((acc, field) => {
       if (defaultState[field] !== userSettings[field]) {
         acc[field] = userSettings[field];
       }
       return acc;
     }, {});
+    const defaultAddress = defaultState['address'] ?? {};
+    const userAddress = userSettings['address'] ?? {};
+    const data2 = addressFields.reduce((acc, field) => {
+      if (defaultAddress[field] !== userAddress[field]) {
+        acc[field] = userAddress[field];
+      }
+      return acc;
+    }, {});
+    const data = { ...data1, address: data2 };
     const res = await fetch(`${baseUrl}/me`, {
       method: "PATCH",
       headers: {

@@ -8,7 +8,9 @@ let data = ref({
     "address": {
       "city": "",
       "region": "",
-      "country": ""
+      "country": "",
+      "line1": "123 Main St",
+      "line2": ""
   }
 });
 
@@ -19,7 +21,11 @@ const idDocuments = [
 ]
 
 onMounted(async() => {
-    data.value = await getUserById()    
+    const user = await getUserById()
+    data.value = {
+        ...user,
+        address: { ...data.value.address, ...(user?.address ?? {}) },
+    }
 })
 </script>
 
@@ -52,7 +58,9 @@ onMounted(async() => {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Full name</span><input v-model="data.name" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
         <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">Phone number</span><input  v-model="data.phone" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
-        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address</span><input v-model="data.address.region" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address line 1</span><input v-model="data.address.line1" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address line 2</span><input v-model="data.address.line2" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
+        <label class="flex flex-col md:col-span-2"><span class="text-sm font-medium text-on-surface-variant pb-2">Address region</span><input v-model="data.address.region" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
         <label class="flex flex-col"><span class="text-sm font-medium text-on-surface-variant pb-2">City</span><input v-model="data.address.city" class="rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"/></label>
         <label class="flex flex-col relative"><span class="text-sm font-medium text-on-surface-variant pb-2">Country</span><select v-model="data.address.country" class="appearance-none rounded-lg border border-outline-variant/30 bg-surface px-4 h-12 text-sm text-on-surface cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim focus:border-transparent"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option></select><span class="material-symbols-outlined absolute right-3 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span></label>
       </div>
