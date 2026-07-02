@@ -74,6 +74,7 @@ export function useDocuments() {
   const loading = ref(false);
   const uploading = ref(false);
   const error = ref(null);
+  const formData = new FormData();
 
   function authHeaders() {
     const tokens = getTokens();
@@ -104,16 +105,18 @@ export function useDocuments() {
     if (!file) return;
     uploading.value = true;
     error.value = null;
-    try {
-      const formData = new FormData();
+  
+    if (!formData.values().length) {
       formData.append("file", file);
+    }
+
+    try {
       const res = await fetch(`${BASE_URL}/me/documents`, {
         method: "POST",
         headers: { ...authHeaders() },
         body: formData,
       });
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-      await fetchDocuments();
     } catch (e) {
       error.value = e.message;
     } finally {
@@ -126,8 +129,10 @@ export function useDocuments() {
     loading,
     uploading,
     error,
+    toCardModel,
     iconMap,
     fetchDocuments,
     uploadDocument,
+    formData,
   };
 }

@@ -100,10 +100,8 @@ router.post('/change-email', asyncHandler((req, res) => {
   const existing = users.findBy('email', newEmail);
   if (existing) throw new AppError(400, 'EMAIL_TAKEN', 'Email is already in use');
 
-  users.update(req.user.id, { pendingEmail: newEmail });
-  generateOtp('change-email', newEmail);
-
-  res.status(204).end();
+  users.update(req.user.id, {emailVerified: false, pendingEmail: newEmail});
+  return res.status(202).json({ code: generateOtp('change-email', newEmail) });
 }));
 
 // POST /me/confirm-email-change
