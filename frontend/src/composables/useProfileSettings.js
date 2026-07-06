@@ -1,22 +1,15 @@
 import { ref } from "vue";
 import { utils } from "../utils";
+import router from "../router/index";
 
 
 export function useProfileSettings() {
   const baseUrl = "http://localhost:3009";
-  const { getTokens } = utils();
+  const { getTokens, uploadFile } = utils();
   let defaultState = {};
   const error = ref(null);
-  const formData = new FormData();
   const OTPcode = ref('')
   
-
-  function authHeaders() {
-    const tokens = getTokens();
-    return tokens?.accessToken
-      ? { Authorization: `Bearer ${tokens.accessToken}` }
-      : {};
-  }
 
   async function saveChange(userSettings) {
     const { accessToken } = getTokens();
@@ -49,16 +42,7 @@ export function useProfileSettings() {
       return acc;
     }, {});
 
-       try {
-         const res = await fetch(`${baseUrl}/me/avatar`, {
-           method: "POST",
-           headers: { ...authHeaders() },
-           body: formData,
-         });
-         if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-       } catch (e) {
-         error.value = e.message;
-       }
+       
     const data = { ...data1, address: data2 };
     const res = await fetch(`${baseUrl}/me`, {
       method: "PATCH",
@@ -68,7 +52,7 @@ export function useProfileSettings() {
       },
       body: JSON.stringify(data),
     });
-
+   
     return await res.json();
   }
 
@@ -86,15 +70,10 @@ export function useProfileSettings() {
     return user;
   }
 
-  function uploadAvatar(file) {
+  async function uploadAvatar(file) {
     if (!file) return;
-    formData.append("file", file);
+    await uploadFile(file, false)
   }
-
-  // function addDocument(file) {
-  //   if (!file) return;
-  //   formData.append("file", file);
-  // }
 
   async function saveEmail(newEmail) {
     const { accessToken } = getTokens();
@@ -125,8 +104,14 @@ export function useProfileSettings() {
       body: JSON.stringify({
         code: OTPcode.value,
       }),
-    });
-    return await res.json();
+    });    
+
+    if (res.status === 204) {
+      return { success: true };
+    }
+
+    const data = await res.json();
+    return data;
   }
 
   async function savePass(currentPassword, newPassword) {    
@@ -142,6 +127,11 @@ export function useProfileSettings() {
         newPassword,
       }),
     });
+
+      if (res.status === 204) {
+        return { success: true };
+      }
+
       const data = await res.json();
       return data;
   }
@@ -155,13 +145,22 @@ export function useProfileSettings() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+        if(res.ok) {
+          router.push("/reg");
+        }
         const data = await res.json();
         return data;
   }
 
+  async function uploadDocument(file) {
+
+    const msg = await uploadFile(file);
+
+  }
 
 
-  return {  getUserById, saveChange, uploadAvatar, error, saveEmail, saveOTP, savePass, deleteAccount };
+
+  return {  getUserById, saveChange, uploadAvatar, error, saveEmail, saveOTP, savePass, deleteAccount, uploadDocument };
 }
 
 

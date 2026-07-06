@@ -6,21 +6,24 @@ import { useProfileSettings } from '@/composables/useProfileSettings';
 import { onMounted, ref } from 'vue';
 
 
-const { saveChange, getUserById, uploadAvatar, saveEmail, saveOTP, savePass, deleteAccount, error } = useProfileSettings()
-const { documents, iconMap, fetchDocuments, uploadDocument, toCardModel, formData } = useDocuments()
+const { saveChange, getUserById, uploadAvatar, uploadDocument, saveEmail, saveOTP, savePass, deleteAccount, error } = useProfileSettings()
+const { documents, iconMap, fetchDocuments, toCardModel } = useDocuments()
 
 let data = ref({
+    "name": "",
+    "phone": "",
     "address": {
       "city": "",
       "region": "",
       "country": "",
-      "line1": "123 Main St",
+      "line1": "",
       "line2": "",
       "postalCode": ""
   }
 });
 
 const avatar = ref(null)
+const avatarFile = ref(null)
 let userInitials = "AR"
 const isOpenEmail = ref(false)
 const isOpenOTP = ref(false)
@@ -32,18 +35,29 @@ const emailVerified = ref(false)
 
 async function handleSaveEmail(event) {
   await saveEmail(event)
+  await refreshEmailStatus()
+}
+
+async function handleSaveChange() {
+  await saveChange(data.value)
+  await uploadAvatar(avatarFile.value, false) 
 }
 
 async function handleSaveOTP() {  
   await saveOTP()
+  await refreshEmailStatus()
+}
+
+const refreshEmailStatus = async () => {
+  emailVerified.value = (await getUserById()).emailVerified ?? false
 }
 
 async function handleSavePass() {
   await savePass(currentPassword.value, newPassword.value)
 }
 
-const handleAvatarUploaded = (file) => {   
-  uploadAvatar(file) 
+const handleAvatarUploaded = (file) => {  
+  avatarFile.value = file
   avatar.value = URL.createObjectURL(file);
 }
 
@@ -62,9 +76,9 @@ onMounted(async() => {
     const user = await getUserById()
     data.value = {
         ...user,
-        address: { ...data.value.address, ...(user?.address ?? {}) },
+        address: { ...data.address, ...(user?.address ?? {}) },
     }
-    avatar.value = `http://localhost:3009${user.avatarUrl}`
+    avatar.value = user.avatarUrl ? `http://localhost:3009${user.avatarUrl}` : null
 
     emailVerified.value = user.emailVerified ?? false
     fetchDocuments()
@@ -136,7 +150,7 @@ onMounted(async() => {
       </div>
       <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
         <button type="button" class="px-5 py-2.5 rounded-lg text-on-surface text-sm font-bold hover:bg-surface-container-high transition-colors">Cancel</button>
-        <button type="button" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg text-sm font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity" @click="saveChange(data)">Save Changes</button>
+        <button type="button" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg text-sm font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity" @click="handleSaveChange">Save Changes</button>
       </div>
     </section>
 

@@ -69,7 +69,7 @@ function toCardModel(item) {
 }
 
 export function useDocuments() {
-  const { getTokens } = utils();
+  const { getTokens, uploadFile } = utils();
   const documents = ref([]);
   const loading = ref(false);
   const uploading = ref(false);
@@ -102,26 +102,15 @@ export function useDocuments() {
   }
 
   async function uploadDocument(file) {
-    if (!file) return;
     uploading.value = true;
     error.value = null;
-  
-    if (!formData.values().length) {
-      formData.append("file", file);
-    }
 
-    try {
-      const res = await fetch(`${BASE_URL}/me/documents`, {
-        method: "POST",
-        headers: { ...authHeaders() },
-        body: formData,
-      });
-      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-    } catch (e) {
-      error.value = e.message;
-    } finally {
-      uploading.value = false;
+    const msg = await uploadFile(file)
+
+    if(msg) {
+      error.value = msg
     }
+    uploading.value = false;
   }
 
   return {
