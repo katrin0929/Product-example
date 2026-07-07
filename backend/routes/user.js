@@ -8,10 +8,10 @@ const { expId } = require('../lib/id');
 const { AppError, asyncHandler } = require('../middleware/error-handler');
 const requireAuth = require('../middleware/auth');
 const config = require('../config');
+const { removeUserDocuments } = require('./documents');
 
 const users = new Store('users.json');
 const exports_ = new Store('exports.json');
-const documents = new Store('documents.json');
 const notifications = new Store('notifications.json');
 const refreshTokens = new Store('refresh-tokens.json');
 
@@ -70,8 +70,7 @@ router.delete('/', asyncHandler((req, res) => {
   users.remove(req.user.id);
 
   // Cleanup related data
-  const allDocs = documents.readAll().filter((d) => d.userId !== req.user.id);
-  documents.writeAll(allDocs);
+  removeUserDocuments(req.user.id);
 
   const allNtf = notifications.readAll().filter((n) => n.userId !== req.user.id);
   notifications.writeAll(allNtf);

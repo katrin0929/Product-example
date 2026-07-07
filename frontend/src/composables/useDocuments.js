@@ -3,29 +3,6 @@ import { utils } from "../utils";
 
 const BASE_URL = "http://localhost:3009";
 
-export const iconMap = {
-  pdf: {
-    name: "picture_as_pdf",
-    wrapper: "bg-error-container/50 border border-error-container/20",
-    text: "text-error",
-  },
-  doc: {
-    name: "description",
-    wrapper: "bg-secondary-container/30 border border-secondary-container/20",
-    text: "text-secondary",
-  },
-  zip: {
-    name: "folder_zip",
-    wrapper: "bg-surface-variant/50 border border-surface-variant",
-    text: "text-on-surface-variant",
-  },
-  generic: {
-    name: "draft",
-    wrapper: "bg-surface-variant/50 border border-surface-variant",
-    text: "text-on-surface-variant",
-  },
-};
-
 function detectIconType(fileName = "", mimeType = "") {
   const ext = (fileName.split(".").pop() || "").toLowerCase();
   if (ext === "pdf" || mimeType === "application/pdf") return "pdf";
@@ -68,7 +45,8 @@ function toCardModel(item) {
   };
 }
 
-export function useDocuments() {
+// category: 'general' — страница Documents, 'identity' — секция на Profile
+export function useDocuments(category = "general") {
   const { getTokens, uploadFile } = utils();
   const documents = ref([]);
   const loading = ref(false);
@@ -86,7 +64,7 @@ export function useDocuments() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch(`${BASE_URL}/me/documents`, {
+      const res = await fetch(`${BASE_URL}/me/documents?category=${category}`, {
         method: "GET",
         headers: { ...authHeaders() },
       });
@@ -106,7 +84,7 @@ export function useDocuments() {
     error.value = null;
 
     try {
-      const msg = await uploadFile(file);
+      const msg = await uploadFile(file, "documents", { category });
       if (msg) {
         error.value = msg;
         return false;

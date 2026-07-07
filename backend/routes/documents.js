@@ -10,6 +10,15 @@ const config = require('../config');
 
 const documents = new Store('documents.json');
 
+// 'general' — страница Documents, 'identity' — секция на Profile.
+// Старые записи без поля category считаются 'general'.
+const CATEGORIES = ['general', 'identity'];
+const DEFAULT_CATEGORY = 'general';
+
+function normalizeCategory(value) {
+  return CATEGORIES.includes(value) ? value : DEFAULT_CATEGORY;
+}
+
 const docStorage = multer.diskStorage({
   destination: path.join(__dirname, '..', 'uploads', 'documents'),
   filename: (req, file, cb) => {
@@ -26,9 +35,13 @@ const uploadDoc = multer({
 const router = Router();
 router.use(requireAuth);
 
-// GET /me/documents
+// GET /me/documents?category=general|identity
 router.get('/', asyncHandler((req, res) => {
-  const docs = documents.filterBy('userId', req.user.id);
+  let docs = documents.filterBy('userId', req.user.id);
+  if (req.query.category !== undefined) {
+    const category = normalizeCategory(req.query.category);
+    docs = docs.filter((d) => (d.category || DEFAULT_CATEGORY) === category);
+  }
   res.json(docs.map(({ userId, filePath, ...d }) => d));
 }));
 
@@ -42,6 +55,7 @@ router.post('/', uploadDoc.single('file'), asyncHandler((req, res) => {
     fileName: req.file.originalname,
     mimeType: req.file.mimetype,
     size: req.file.size,
+    category: normalizeCategory(req.body.category),
     createdAt: new Date().toISOString(),
     filePath: req.file.path,
   };
@@ -80,4 +94,21 @@ router.delete('/:documentId', asyncHandler((req, res) => {
   res.status(204).end();
 }));
 
-module.exports = router;
+// Удаляет все документы пользователя: и записи, и файлы с диска.
+// Используется при каскадном удалении аккаунта (DELETE /me).
+function removeUserDocuments(userId) {
+  const userDocs = documents.filterBy('userId', userId);
+
+  for (const doc of userDocs) {
+    try {
+      fs.unlinkSync(doc.filePath);
+    } catch {
+      // File might already be deleted
+    }
+  }
+
+  const rest = documents.readAll().filter((d) => d.userId !== userId);
+  documents.writeAll(rest);
+}
+
+module.exports = { router, removeUserDocuments };

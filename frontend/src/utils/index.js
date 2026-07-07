@@ -27,13 +27,14 @@ export function utils() {
       },
 
       // Returns null on success, an error message string on failure
-      uploadFile: async (file, isDocuments = true) => {
+      uploadFile: async (file, uploadPath, extraFields = {}) => {
         if (!file) return null;
 
         const formData = new FormData();
         formData.append("file", file);
-
-        const uploadPath = isDocuments ? "documents" : "avatar";
+        for (const [key, value] of Object.entries(extraFields)) {
+          formData.append(key, value);
+        }
 
         try {
             const res = await fetch(`${BASE_URL}/me/${uploadPath}`, {

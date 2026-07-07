@@ -13,7 +13,7 @@ const { setupWebSocket } = require('./ws/notifications');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-const documentRoutes = require('./routes/documents');
+const { router: documentRoutes } = require('./routes/documents');
 const paymentRoutes = require('./routes/payments');
 const invoiceRoutes = require('./routes/invoices');
 const notificationRoutes = require('./routes/notifications');

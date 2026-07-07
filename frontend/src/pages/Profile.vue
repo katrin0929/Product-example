@@ -1,14 +1,12 @@
 <script setup>
-import { useDocuments } from '@/composables/useDocuments';
-import ModalChange from '@/components/ModalChange.vue';
-import DocumentCard from '@/components/DocumentCard.vue';
+import ModalChange from '@/components/profile/ModalChange.vue';
+import DocumentsSection from '@/components/documents/DocumentsSection.vue';
 import FileUploader from '@/components/FileUploader.vue'
 import { useProfileSettings } from '@/composables/useProfileSettings';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 
 const { saveChange, getUserById, uploadAvatar, saveEmail, saveOTP, savePass, deleteAccount, error } = useProfileSettings()
-const { documents, fetchDocuments, uploadDocument, error: documentsError } = useDocuments()
 
 let data = ref({
     "name": "",
@@ -91,7 +89,6 @@ onMounted(async() => {
 
     emailVerified.value = user.emailVerified ?? false
     pendingEmail.value = user.pendingEmail ?? null
-    fetchDocuments()
 })
 </script>
 
@@ -228,27 +225,7 @@ onMounted(async() => {
     </section>
 
     <!-- Identity documents -->
-    <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 md:p-8 space-y-5">
-      <div class="flex items-end justify-between gap-4"><div><h3 class="text-lg font-bold tracking-tight headline">Identity Documents</h3><p class="text-sm text-on-surface-variant mt-0.5">Uploaded for account verification.</p></div>
-      <FileUploader
-        :upload-fn="uploadDocument"
-        accept=".pdf,.jpg,.png"
-      >
-        <template #default="{ onPick, loading }">
-          <button
-            @click="onPick"
-            :disabled="loading"
-            class="rounded-lg border border-dashed border-outline-variant/40 p-4 flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors min-h-[112px] disabled:opacity-60"
-          >
-            <span class="material-symbols-outlined">add_circle</span><span class="text-xs font-medium">{{ loading ? 'Uploading...' : 'Add document' }}</span>
-          </button>
-        </template>
-      </FileUploader></div>
-      <p v-if="documentsError" class="text-error text-sm">{{ documentsError }}</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <DocumentCard v-for="doc in documents" :key="doc.id" :doc="doc" />
-      </div>
-    </section>
+    <DocumentsSection />
 
     <!-- Data & account -->
     <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 md:p-8 space-y-5">

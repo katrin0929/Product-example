@@ -1,9 +1,31 @@
 <script setup>
-import { iconMap } from '@/composables/useDocuments'
-
 defineProps({
   doc: { type: Object, required: true },
 })
+
+// Ключи соответствуют doc.iconType из useDocuments (detectIconType)
+const iconMap = {
+  pdf: {
+    name: 'picture_as_pdf',
+    wrapper: 'bg-error-container/50 border border-error-container/20',
+    text: 'text-error',
+  },
+  doc: {
+    name: 'description',
+    wrapper: 'bg-secondary-container/30 border border-secondary-container/20',
+    text: 'text-secondary',
+  },
+  zip: {
+    name: 'folder_zip',
+    wrapper: 'bg-surface-variant/50 border border-surface-variant',
+    text: 'text-on-surface-variant',
+  },
+  generic: {
+    name: 'draft',
+    wrapper: 'bg-surface-variant/50 border border-surface-variant',
+    text: 'text-on-surface-variant',
+  },
+}
 </script>
 
 <template>

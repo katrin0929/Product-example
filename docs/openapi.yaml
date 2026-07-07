@@ -191,6 +191,7 @@ components:
         fileName: { type: string, example: passport.pdf }
         mimeType: { type: string, example: application/pdf }
         size: { type: integer, example: 123456 }
+        category: { type: string, enum: [general, identity], default: general }
         createdAt: { type: string, format: date-time }
 
     Product:
@@ -609,6 +610,12 @@ paths:
       tags: [Documents]
       summary: List user documents
       security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: category
+          required: false
+          schema: { type: string, enum: [general, identity] }
+          description: Filter documents by category; omit to list all
       responses:
         "200":
           description: OK
@@ -630,6 +637,7 @@ paths:
               required: [file]
               properties:
                 file: { type: string, format: binary }
+                category: { type: string, enum: [general, identity], default: general }
       responses:
         "201": { description: Created }
         "400": { $ref: "#/components/responses/BadRequest" }

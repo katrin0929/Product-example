@@ -79,7 +79,7 @@ export function useProfileSettings() {
     if (!file) return false;
     error.value = null;
 
-    const msg = await uploadFile(file, false);
+    const msg = await uploadFile(file, "avatar");
     if (msg) {
       error.value = msg;
       return false;

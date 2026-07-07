@@ -1,29 +1,16 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useDocuments } from '@/composables/useDocuments'
-import DocumentCard from '@/components/DocumentCard.vue'
+import DocumentCard from '@/components/documents/DocumentCard.vue'
+import FileUploader from '@/components/FileUploader.vue'
 
 const {
   documents,
   loading,
-  uploading,
   error,
   fetchDocuments,
   uploadDocument,
-} = useDocuments()
-
-const fileInput = ref(null)
-
-function onPickFile() {
-  fileInput.value?.click()
-}
-
-async function onFileChange(event) {
-  const file = event.target.files?.[0]
-  if (!file) return
-  await uploadDocument(file)
-  event.target.value = ''
-}
+} = useDocuments('general')
 
 onMounted(fetchDocuments)
 </script>
@@ -41,25 +28,23 @@ onMounted(fetchDocuments)
             Manage your architectural specs, blueprints, and project documentation in one precision environment.
           </p>
         </div>
-        <button
-          type="button"
-          :disabled="uploading"
-          class="group relative flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg font-label font-medium shadow-sm transition-all duration-200 hover:shadow-[0px_10px_20px_rgba(79,70,229,0.2)] active:scale-95 overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed"
-          @click="onPickFile"
-        >
-          <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-200"></div>
-          <span
-            class="material-symbols-outlined text-lg relative z-10"
-            style="font-variation-settings: 'FILL' 1;"
-          >upload_file</span>
-          <span class="relative z-10">{{ uploading ? 'Uploading...' : 'Upload Document' }}</span>
-        </button>
-        <input
-          ref="fileInput"
-          type="file"
-          class="hidden"
-          @change="onFileChange"
-        />
+        <FileUploader :upload-fn="uploadDocument">
+          <template #default="{ onPick, loading: uploading }">
+            <button
+              type="button"
+              :disabled="uploading"
+              class="group relative flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg font-label font-medium shadow-sm transition-all duration-200 hover:shadow-[0px_10px_20px_rgba(79,70,229,0.2)] active:scale-95 overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed"
+              @click="onPick"
+            >
+              <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-200"></div>
+              <span
+                class="material-symbols-outlined text-lg relative z-10"
+                style="font-variation-settings: 'FILL' 1;"
+              >upload_file</span>
+              <span class="relative z-10">{{ uploading ? 'Uploading...' : 'Upload Document' }}</span>
+            </button>
+          </template>
+        </FileUploader>
       </div>
 
       <p v-if="error" class="text-error text-sm mb-4">{{ error }}</p>
