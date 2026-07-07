@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref } from 'vue'
 
 const emit = defineEmits(['uploaded']);
 
@@ -17,8 +17,19 @@ const onPickFile = () => {
 
 const onFileChange = async (e) => {
   const file = e.target.files?.[0]
-      
-    emit('uploaded', file)
+  // Reset so picking the same file again re-fires the change event
+  e.target.value = ''
+  if (!file) return
+
+  loading.value = true
+  try {
+    const ok = props.uploadFn ? await props.uploadFn(file) : true
+    if (ok !== false) {
+      emit('uploaded', file)
+    }
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -31,10 +42,7 @@ const onFileChange = async (e) => {
       class="hidden"
       @change="onFileChange"
     />
-    
-    <slot :onPick="onPickFile" :loading="loading">
-      <button @click="onPickFile" :disabled="loading">
-      </button>
-    </slot>
+
+    <slot :onPick="onPickFile" :loading="loading" />
   </div>
 </template>

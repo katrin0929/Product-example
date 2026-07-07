@@ -1,13 +1,14 @@
 <script setup>
 import { useDocuments } from '@/composables/useDocuments';
 import ModalChange from '@/components/ModalChange.vue';
+import DocumentCard from '@/components/DocumentCard.vue';
 import FileUploader from '@/components/FileUploader.vue'
 import { useProfileSettings } from '@/composables/useProfileSettings';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 
-const { saveChange, getUserById, uploadAvatar, uploadDocument, saveEmail, saveOTP, savePass, deleteAccount, error } = useProfileSettings()
-const { documents, iconMap, fetchDocuments, toCardModel } = useDocuments()
+const { saveChange, getUserById, uploadAvatar, saveEmail, saveOTP, savePass, deleteAccount, error } = useProfileSettings()
+const { documents, fetchDocuments, uploadDocument, error: documentsError } = useDocuments()
 
 let data = ref({
     "name": "",
@@ -23,64 +24,73 @@ let data = ref({
 });
 
 const avatar = ref(null)
-const avatarFile = ref(null)
 let userInitials = "AR"
 const isOpenEmail = ref(false)
 const isOpenOTP = ref(false)
 const isOpenPass = ref(false)
 const currentPassword = ref('')
 const newPassword = ref('')
-const emailVerified = ref(false)
+const emailVerified = ref(true)
+const pendingEmail = ref(null)
 
 
-async function handleSaveEmail(event) {
-  await saveEmail(event)
-  await refreshEmailStatus()
+async function handleSaveEmail(newEmail) {
+  if (await saveEmail(newEmail)) {
+    await refreshEmailStatus()
+  }
 }
 
 async function handleSaveChange() {
   await saveChange(data.value)
-  await uploadAvatar(avatarFile.value, false) 
 }
 
-async function handleSaveOTP() {  
-  await saveOTP()
-  await refreshEmailStatus()
+async function handleSaveOTP(code) {
+  if (await saveOTP(code)) {
+    await refreshEmailStatus()
+  }
 }
 
 const refreshEmailStatus = async () => {
-  emailVerified.value = (await getUserById()).emailVerified ?? false
+  const user = await getUserById()
+  emailVerified.value = user.emailVerified ?? false
+  pendingEmail.value = user.pendingEmail ?? null
 }
 
 async function handleSavePass() {
-  await savePass(currentPassword.value, newPassword.value)
+  if (await savePass(currentPassword.value, newPassword.value)) {
+    currentPassword.value = ''
+    newPassword.value = ''
+  }
 }
 
-const handleAvatarUploaded = (file) => {  
-  avatarFile.value = file
-  avatar.value = URL.createObjectURL(file);
+const revokeAvatarPreview = () => {
+  if (avatar.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(avatar.value)
+  }
 }
 
-const handleDocumentUploaded = (file) => {
-  formData.append("file", file);
-  documents.value.push(toCardModel({
-    "id": "doc_123",
-    "fileName": file.name,
-    "mimeType": file.type,
-    "size": file.size,
-    "createdAt": file.lastModifiedDate
-  }))
+const handleAvatarUploaded = (file) => {
+  revokeAvatarPreview()
+  avatar.value = URL.createObjectURL(file)
 }
+
+async function handleDeleteAccount() {
+  if (!window.confirm('Permanently delete your account and all associated data? This cannot be undone.')) return
+  await deleteAccount()
+}
+
+onBeforeUnmount(revokeAvatarPreview)
 
 onMounted(async() => {
     const user = await getUserById()
     data.value = {
         ...user,
-        address: { ...data.address, ...(user?.address ?? {}) },
+        address: { ...data.value.address, ...(user?.address ?? {}) },
     }
     avatar.value = user.avatarUrl ? `http://localhost:3009${user.avatarUrl}` : null
 
     emailVerified.value = user.emailVerified ?? false
+    pendingEmail.value = user.pendingEmail ?? null
     fetchDocuments()
 })
 </script>
@@ -166,26 +176,24 @@ onMounted(async() => {
           </div>
         </div>
         <button @click="isOpenEmail = true" type="button" class="px-4 py-2 rounded-lg bg-surface-container-high text-on-surface text-sm font-bold hover:bg-surface-container-highest transition-colors">Change email</button>
-          <ModalChange 
+          <ModalChange
             v-model="isOpenEmail"
             title="Enter a new Email"
             placeholder="Enter a new email"
             inputType="email"
             @save="handleSaveEmail"
-            @close="handleCloseModal"
           />
       </div>
-      <div v-if="!emailVerified" class="flex items-start gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200/60">
+      <div v-if="!emailVerified || pendingEmail" class="flex items-start gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200/60">
         <span class="material-symbols-outlined text-amber-600 mt-0.5">schedule</span>
-        <div class="flex-1"><p class="text-sm font-semibold text-amber-800">Verify your new email</p><p class="text-xs text-amber-700/90 mt-0.5">We sent a confirmation link to <span class="font-semibold">a.rivera@gmail.com</span>. It expires in 30 minutes.</p></div>
-        <button @click="isOpenOTP = true" type="button" class="text-amber-700 text-sm font-bold hover:underline whitespace-nowrap">Resend</button>
-            <ModalChange 
+        <div class="flex-1"><p class="text-sm font-semibold text-amber-800">Verify your new email</p><p class="text-xs text-amber-700/90 mt-0.5">We sent a confirmation code to <span class="font-semibold">{{ pendingEmail || data.email }}</span>.</p></div>
+        <button @click="isOpenOTP = true" type="button" class="text-amber-700 text-sm font-bold hover:underline whitespace-nowrap">Enter code</button>
+            <ModalChange
               v-model="isOpenOTP"
               title="Enter your OTP code"
               placeholder="Enter OTP code"
               inputType="text"
               @save="handleSaveOTP"
-              @close="handleCloseModal"
             />
       </div>
       <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-surface-container-low">
@@ -225,74 +233,20 @@ onMounted(async() => {
       <FileUploader
         :upload-fn="uploadDocument"
         accept=".pdf,.jpg,.png"
-        label="Upload Document"
-        @uploaded="handleDocumentUploaded"
       >
         <template #default="{ onPick, loading }">
-          <button 
-            @click="onPick" 
+          <button
+            @click="onPick"
             :disabled="loading"
-            class="rounded-lg border border-dashed border-outline-variant/40 p-4 flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors min-h-[112px]"
+            class="rounded-lg border border-dashed border-outline-variant/40 p-4 flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors min-h-[112px] disabled:opacity-60"
           >
-            <span class="material-symbols-outlined">add_circle</span><span class="text-xs font-medium">Add document</span>
+            <span class="material-symbols-outlined">add_circle</span><span class="text-xs font-medium">{{ loading ? 'Uploading...' : 'Add document' }}</span>
           </button>
         </template>
-
-
-      </FileUploader>
-      <button @click="uploadDocument" type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-container-high text-on-surface text-sm font-bold hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-lg">upload</span>Upload</button></div>
+      </FileUploader></div>
+      <p v-if="documentsError" class="text-error text-sm">{{ documentsError }}</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="doc in documents"
-          :key="doc.name"
-          class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/15 shadow-[0px_20px_40px_rgba(19,27,46,0.03)] hover:shadow-[0px_20px_40px_rgba(19,27,46,0.08)] hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full cursor-pointer relative overflow-hidden"
-        >
-          <div class="flex justify-between items-start mb-6">
-            <div
-              :class="['w-12 h-12 rounded-lg flex items-center justify-center', iconMap[doc.iconType].wrapper]"
-            >
-              <span
-                :class="['material-symbols-outlined text-2xl', iconMap[doc.iconType].text]"
-                style="font-variation-settings: 'FILL' 1;"
-              >{{ iconMap[doc.iconType].name }}</span>
-            </div>
-            <button class="text-on-surface-variant hover:text-on-surface p-1 rounded-md hover:bg-surface-container-low transition-colors">
-              <span class="material-symbols-outlined">more_horiz</span>
-            </button>
-          </div>
-
-          <div class="flex-1 mb-6">
-            <h3 class="font-headline font-bold text-lg text-on-surface line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-              {{ doc.name }}
-            </h3>
-            <p class="font-body text-xs text-on-surface-variant flex items-center gap-1">
-              {{ doc.modified }}
-            </p>
-          </div>
-
-          <div class="flex items-center justify-between mt-auto pt-4 border-t border-outline-variant/10">
-            <div class="flex items-center gap-3">
-              <img
-                v-if="doc.owner.type === 'image'"
-                alt="Owner"
-                class="w-6 h-6 rounded-full object-cover"
-                :src="doc.owner.src"
-              />
-              <div
-                v-else
-                class="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[10px] font-bold"
-              >
-                {{ doc.owner.value }}
-              </div>
-              <span class="font-label text-xs text-on-surface-variant font-medium">{{ doc.size }}</span>
-            </div>
-            <span
-              :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.6875rem] font-medium', doc.statusClass]"
-            >
-              {{ doc.statusLabel }}
-            </span>
-          </div>
-        </div>
+        <DocumentCard v-for="doc in documents" :key="doc.id" :doc="doc" />
       </div>
     </section>
 
@@ -311,7 +265,7 @@ onMounted(async() => {
         <p class="text-sm text-on-surface-variant mb-5 leading-relaxed">Permanently delete your account and all associated data. This action cannot be undone.</p>
         <div class="flex flex-wrap items-center justify-between gap-4 bg-error-container p-4 rounded-lg">
           <div><p class="font-bold text-on-error-container text-sm">Delete account</p><p class="text-xs text-on-error-container/70 mt-0.5">All projects, documents, and history will be wiped.</p></div>
-          <button @click="deleteAccount" type="button" class="bg-error text-on-error px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-error/90 transition-colors shadow-sm">Delete account</button>
+          <button @click="handleDeleteAccount" type="button" class="bg-error text-on-error px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-error/90 transition-colors shadow-sm">Delete account</button>
         </div>
       </div>
     </section>

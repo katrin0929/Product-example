@@ -1,9 +1,7 @@
 export function utils() {
     let data = JSON.parse(localStorage.getItem('data'))
     let tokens = JSON.parse(localStorage.getItem('tokens'))
-    let formData = new FormData();
     const BASE_URL = "http://localhost:3009";
-    let uploadPath = "";
 
     return {
 
@@ -21,15 +19,21 @@ export function utils() {
         tokens = { accessToken, refreshToken, expiresIn };
         localStorage.setItem("tokens", JSON.stringify(tokens));
       },
+      clearTokens: () => {
+        tokens = null;
+        data = null;
+        localStorage.removeItem("tokens");
+        localStorage.removeItem("data");
+      },
 
+      // Returns null on success, an error message string on failure
       uploadFile: async (file, isDocuments = true) => {
-        if (!file) return;
-  
-        if (!formData.values().length) {
-            formData.append("file", file);
-        }
+        if (!file) return null;
 
-        uploadPath = isDocuments ? "documents" : "avatar";
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadPath = isDocuments ? "documents" : "avatar";
 
         try {
             const res = await fetch(`${BASE_URL}/me/${uploadPath}`, {
@@ -39,11 +43,14 @@ export function utils() {
                 },
                 body: formData,
             });
-            if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+            if (!res.ok) {
+                const body = await res.json().catch(() => null);
+                throw new Error(body?.message || `Upload failed (${res.status})`);
+            }
         } catch (e) {
             return e.message;
-        } 
-        return false
+        }
+        return null;
       }
     };
 }

@@ -41,7 +41,7 @@ const router = Router();
 router.use(requireAuth);
 
 function toPublic(user) {
-  const { passwordHash, resetToken, resetTokenExpiresAt, pendingEmail, ...pub } = user;
+  const { passwordHash, resetToken, resetTokenExpiresAt, ...pub } = user;
   return pub;
 }
 
@@ -100,8 +100,11 @@ router.post('/change-email', asyncHandler((req, res) => {
   const existing = users.findBy('email', newEmail);
   if (existing) throw new AppError(400, 'EMAIL_TAKEN', 'Email is already in use');
 
-  users.update(req.user.id, {emailVerified: false, pendingEmail: newEmail});
-  return res.status(202).json({ code: generateOtp('change-email', newEmail) });
+  users.update(req.user.id, { pendingEmail: newEmail });
+  // Code is delivered out-of-band (server console in this demo), never in the response
+  generateOtp('change-email', newEmail);
+
+  res.status(204).end();
 }));
 
 // POST /me/confirm-email-change

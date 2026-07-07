@@ -3,7 +3,7 @@ import { utils } from "../utils";
 
 const BASE_URL = "http://localhost:3009";
 
-const iconMap = {
+export const iconMap = {
   pdf: {
     name: "picture_as_pdf",
     wrapper: "bg-error-container/50 border border-error-container/20",
@@ -74,7 +74,6 @@ export function useDocuments() {
   const loading = ref(false);
   const uploading = ref(false);
   const error = ref(null);
-  const formData = new FormData();
 
   function authHeaders() {
     const tokens = getTokens();
@@ -102,15 +101,21 @@ export function useDocuments() {
   }
 
   async function uploadDocument(file) {
+    if (!file) return false;
     uploading.value = true;
     error.value = null;
 
-    const msg = await uploadFile(file)
-
-    if(msg) {
-      error.value = msg
+    try {
+      const msg = await uploadFile(file);
+      if (msg) {
+        error.value = msg;
+        return false;
+      }
+      await fetchDocuments();
+      return true;
+    } finally {
+      uploading.value = false;
     }
-    uploading.value = false;
   }
 
   return {
@@ -118,10 +123,7 @@ export function useDocuments() {
     loading,
     uploading,
     error,
-    toCardModel,
-    iconMap,
     fetchDocuments,
     uploadDocument,
-    formData,
   };
 }

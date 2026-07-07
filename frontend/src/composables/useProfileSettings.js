@@ -5,20 +5,27 @@ import router from "../router/index";
 
 export function useProfileSettings() {
   const baseUrl = "http://localhost:3009";
-  const { getTokens, uploadFile } = utils();
+  const { getTokens, clearTokens, uploadFile } = utils();
   let defaultState = {};
   const error = ref(null);
-  const OTPcode = ref('')
-  
+
+  function authJsonHeaders() {
+    const { accessToken } = getTokens();
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    };
+  }
+
+  async function readError(res, fallback) {
+    const body = await res.json().catch(() => null);
+    return body?.message || fallback;
+  }
 
   async function saveChange(userSettings) {
-    const { accessToken } = getTokens();
-    
-    const fields = [
-      "name",
-      "phone",
-      "avatarUrl"
-    ];
+    error.value = null;
+
+    const fields = ["name", "phone"];
     const addressFields = [
       "line1",
       "line2",
@@ -42,28 +49,26 @@ export function useProfileSettings() {
       return acc;
     }, {});
 
-       
     const data = { ...data1, address: data2 };
     const res = await fetch(`${baseUrl}/me`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: authJsonHeaders(),
       body: JSON.stringify(data),
     });
-   
-    return await res.json();
+    if (!res.ok) {
+      error.value = await readError(res, `Save failed (${res.status})`);
+      return null;
+    }
+
+    const user = await res.json();
+    defaultState = { ...user };
+    return user;
   }
 
   async function getUserById() {
-    const { accessToken } = getTokens();
     const res = await fetch(`${baseUrl}/me`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: authJsonHeaders(),
     });
     const user = await res.json();
     defaultState = { ...user };
@@ -71,97 +76,77 @@ export function useProfileSettings() {
   }
 
   async function uploadAvatar(file) {
-    if (!file) return;
-    await uploadFile(file, false)
+    if (!file) return false;
+    error.value = null;
+
+    const msg = await uploadFile(file, false);
+    if (msg) {
+      error.value = msg;
+      return false;
+    }
+    return true;
   }
 
   async function saveEmail(newEmail) {
-    const { accessToken } = getTokens();
+    error.value = null;
     const res = await fetch(`${baseUrl}/me/change-email`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        newEmail
-      })
-      
+      headers: authJsonHeaders(),
+      body: JSON.stringify({ newEmail }),
     });
-    
-    const data = await res.json();
-    OTPcode.value = data.code;
+    if (!res.ok) {
+      error.value = await readError(res, `Email change failed (${res.status})`);
+      return false;
+    }
+    return true;
   }
 
-  async function saveOTP() {
-    const { accessToken } = getTokens();
+  async function saveOTP(code) {
+    error.value = null;
     const res = await fetch(`${baseUrl}/me/confirm-email-change`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        code: OTPcode.value,
-      }),
-    });    
-
-    if (res.status === 204) {
-      return { success: true };
+      headers: authJsonHeaders(),
+      body: JSON.stringify({ code }),
+    });
+    if (!res.ok) {
+      error.value = await readError(res, `Confirmation failed (${res.status})`);
+      return false;
     }
-
-    const data = await res.json();
-    return data;
+    return true;
   }
 
-  async function savePass(currentPassword, newPassword) {    
-    const { accessToken } = getTokens();
+  async function savePass(currentPassword, newPassword) {
+    error.value = null;
     const res = await fetch(`${baseUrl}/me/change-password`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: authJsonHeaders(),
       body: JSON.stringify({
         currentPassword,
         newPassword,
       }),
     });
-
-      if (res.status === 204) {
-        return { success: true };
-      }
-
-      const data = await res.json();
-      return data;
+    if (!res.ok) {
+      error.value = await readError(res, `Password change failed (${res.status})`);
+      return false;
+    }
+    return true;
   }
 
   async function deleteAccount() {
-        const { accessToken } = getTokens();
-        const res = await fetch(`${baseUrl}/me`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        if(res.ok) {
-          router.push("/reg");
-        }
-        const data = await res.json();
-        return data;
+    error.value = null;
+    const res = await fetch(`${baseUrl}/me`, {
+      method: "DELETE",
+      headers: authJsonHeaders(),
+    });
+    if (!res.ok) {
+      error.value = await readError(res, `Account deletion failed (${res.status})`);
+      return false;
+    }
+
+    clearTokens();
+    router.push("/reg");
+    return true;
   }
 
-  async function uploadDocument(file) {
-
-    const msg = await uploadFile(file);
-
-  }
-
-
-
-  return {  getUserById, saveChange, uploadAvatar, error, saveEmail, saveOTP, savePass, deleteAccount, uploadDocument };
+  return { getUserById, saveChange, uploadAvatar, error, saveEmail, saveOTP, savePass, deleteAccount };
 }
-
-
-

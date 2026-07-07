@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, useSlots } from 'vue';
 
 // Пропсы
 const props = defineProps({
@@ -32,6 +32,8 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['update:modelValue', 'save', 'close']);
 
+const slots = useSlots();
+
 // Данные
 const value = ref('');
 
@@ -41,10 +43,11 @@ const closeModal = () => {
   emit('close');
 };
 
-// Сохранение
+// Сохранение: при кастомном контенте (слоте) валидация на стороне родителя,
+// для дефолтного инпута не пропускаем пустое значение
 const handleSave = () => {
-  if (value) {
-    emit('save', value.value);
+  if (slots.default || value.value.trim()) {
+    emit('save', value.value.trim());
     closeModal();
   }
 };
