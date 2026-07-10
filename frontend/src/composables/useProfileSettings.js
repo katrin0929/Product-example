@@ -8,6 +8,7 @@ export function useProfileSettings() {
   const { getTokens, clearTokens, uploadFile } = utils();
   let defaultState = {};
   const error = ref(null);
+  const isDownloading = ref(false)
 
   function authJsonHeaders() {
     const { accessToken } = getTokens();
@@ -45,6 +46,8 @@ export function useProfileSettings() {
     const data2 = addressFields.reduce((acc, field) => {
       if (defaultAddress[field] !== userAddress[field]) {
         acc[field] = userAddress[field];
+      } else {
+        acc[field] = defaultAddress[field];
       }
       return acc;
     }, {});
@@ -148,5 +151,45 @@ export function useProfileSettings() {
     return true;
   }
 
-  return { getUserById, saveChange, uploadAvatar, error, saveEmail, saveOTP, savePass, deleteAccount };
+   async function downloadDocument(documentId) {
+     if (isDownloading.value) return;
+     isDownloading.value = true;
+
+     try {
+       return await fetch(`${baseUrl}/me/documents/${documentId}`, {
+         method: "GET",
+         headers: authJsonHeaders(),
+       });
+     } finally {
+       isDownloading.value = false;
+     }
+   }
+
+   async function deleteDocument(documentId) {
+     if (isDownloading.value) return;
+     isDownloading.value = true;
+
+     try {
+       return await fetch(`${baseUrl}/me/documents/${documentId}`, {
+         method: "DELETE",
+         headers: authJsonHeaders(),
+       });
+     } finally {
+       isDownloading.value = false;
+     }
+   } 
+
+
+  return {
+    getUserById,
+    saveChange,
+    uploadAvatar,
+    error,
+    saveEmail,
+    saveOTP,
+    savePass,
+    deleteAccount,
+    downloadDocument,
+    deleteDocument,
+  };
 }

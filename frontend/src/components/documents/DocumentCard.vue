@@ -1,4 +1,9 @@
 <script setup>
+import Dropdown from '../Dropdown.vue';
+
+const emit = defineEmits(['download', 'delete'])
+
+
 defineProps({
   doc: { type: Object, required: true },
 })
@@ -26,6 +31,15 @@ const iconMap = {
     text: 'text-on-surface-variant',
   },
 }
+
+const handleDownload = (docId) => {
+  emit('download', docId)
+}
+
+const handleDelete = (docId) => {
+  emit('delete', docId)
+}
+
 </script>
 
 <template>
@@ -41,9 +55,26 @@ const iconMap = {
           style="font-variation-settings: 'FILL' 1;"
         >{{ iconMap[doc.iconType].name }}</span>
       </div>
-      <button class="text-on-surface-variant hover:text-on-surface p-1 rounded-md hover:bg-surface-container-low transition-colors">
-        <span class="material-symbols-outlined">more_horiz</span>
-      </button>
+      <Dropdown>
+        <template #trigger-el>
+          <button class="text-on-surface-variant hover:text-on-surface p-1 rounded-md hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined">more_horiz</span>
+          </button>
+        </template>
+
+        <template #content-dropdown>
+          <div class="w-56 rounded-md bg-white shadow-lg py-1">
+            <button  @click="handleDownload(doc.id)"  class="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left">
+              Download
+            </button>
+            <hr class="my-1" />
+            <button  @click="handleDelete(doc.id)" class="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600">
+              Delete
+            </button>
+          </div>
+        </template>
+      </Dropdown>
+
     </div>
 
     <div class="flex-1 mb-6">
@@ -79,3 +110,5 @@ const iconMap = {
     </div>
   </div>
 </template>
+
+

@@ -3,8 +3,18 @@ import { onMounted } from 'vue'
 import { useDocuments } from '@/composables/useDocuments'
 import DocumentCard from '@/components/documents/DocumentCard.vue'
 import FileUploader from '@/components/FileUploader.vue'
+import { useProfileSettings } from '@/composables/useProfileSettings'
 
 const { documents, fetchDocuments, uploadDocument, error } = useDocuments('identity')
+const { downloadDocument, deleteDocument } = useProfileSettings()
+
+const handleDownload = (docId) => {
+  downloadDocument(docId)
+}
+
+const handleDelete = (docId) => {
+  deleteDocument(docId)
+}
 
 onMounted(fetchDocuments)
 </script>
@@ -30,7 +40,13 @@ onMounted(fetchDocuments)
     </div>
     <p v-if="error" class="text-error text-sm">{{ error }}</p>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <DocumentCard v-for="doc in documents" :key="doc.id" :doc="doc" />
+        <DocumentCard 
+          v-for="doc in documents" 
+          :key="doc.id" 
+          :doc="doc"
+          @download="handleDownload"
+          @delete="handleDelete"
+        />
     </div>
   </section>
 </template>

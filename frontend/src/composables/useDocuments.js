@@ -52,6 +52,9 @@ export function useDocuments(category = "general") {
   const loading = ref(false);
   const uploading = ref(false);
   const error = ref(null);
+  const isDownloading = ref(false);
+
+
 
   function authHeaders() {
     const tokens = getTokens();
@@ -96,6 +99,34 @@ export function useDocuments(category = "general") {
     }
   }
 
+  async function downloadDocument(documentId) {
+    if (isDownloading.value) return;
+    isDownloading.value = true; 
+
+    try {
+      return await fetch(`${BASE_URL}/me/documents/${documentId}`, {
+        method: "GET",
+        headers: authHeaders(),
+      });
+    } finally {
+      isDownloading.value = false;
+    }
+  }
+
+  async function deleteDocument(documentId) {
+    if (isDownloading.value) return;
+    isDownloading.value = true;
+
+    try {
+      return await fetch(`${BASE_URL}/me/documents/${documentId}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+    } finally {
+      isDownloading.value = false;
+    }
+  } 
+
   return {
     documents,
     loading,
@@ -103,5 +134,7 @@ export function useDocuments(category = "general") {
     error,
     fetchDocuments,
     uploadDocument,
+    downloadDocument,
+    deleteDocument
   };
 }

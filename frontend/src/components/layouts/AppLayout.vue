@@ -1,7 +1,11 @@
 <script setup>
 import { useRoute } from 'vue-router'
+import Dropdown from '../Dropdown.vue'
+import router from "../../router/index";
+import { utils } from "../../utils";
 
 const route = useRoute()
+const { clearTokens } = utils();
 
 const navItems = [
   { name: 'Dashboard', label: 'Dashboard', icon: 'dashboard',       to: '/Dashboard' },
@@ -28,6 +32,11 @@ const navClass = (name) => (isActive(name) ? activeClass : inactiveClass)
 const bottomClass = (name) => (isActive(name) ? activeClass : bottomInactiveClass)
 
 const linkBase = 'flex items-center gap-3 px-3 py-2.5 rounded-lg'
+
+function handleLogout() {
+  clearTokens()
+  router.push("/LogIn")
+}
 </script>
 
 <template>
@@ -109,18 +118,37 @@ const linkBase = 'flex items-center gap-3 px-3 py-2.5 rounded-lg'
           <button class="p-2 text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-full transition-colors">
             <span class="material-symbols-outlined">help_outline</span>
           </button>
-          <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
-          <div class="flex items-center gap-3 pl-2">
-            <div class="text-right hidden sm:block">
-              <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 leading-none">Alex Rivera</p>
-              <p class="text-[0.6875rem] text-slate-500 mt-1">Lead Architect</p>
-            </div>
-            <img
-              alt="User profile avatar"
-              class="w-10 h-10 rounded-full ring-2 ring-indigo-100"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc_g6yEjB_mSR9Jx8cU-VTiPn26WePjTXlwYF4imYY9EbtxfVpaXRQ1t_VG0ESCcufn-eGv89Vm5EOCeowthySsP31LdeKZoNQrHdVZG5RTUVe31Qisv9co_Mu1A6gvIIs9FQqiK9MFWPYm4nwmrU777S6QjfQZO7mAURC4CuWDRcFyy_4U9-LvkocnfzkuLjGyWpW_ioIzY0kKumdLxsxJh-XDI58XdMuRHvsMdOeDO2IuaHSFegRdoqJsVocL6wmQfDPQmCJDuvR"
-            />
-          </div>
+
+          <Dropdown placement="bottom-end"
+            custom-dropdown-popper
+          >
+            <template #trigger-el>
+              <!-- <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div> -->
+              <button type="button">
+                <div class="flex items-center gap-3 pl-2">
+                  <div class="text-right hidden sm:block">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-50 leading-none">Alex Rivera</p>
+                    <p class="text-[0.6875rem] text-slate-500 mt-1">Lead Architect</p>
+                  </div>
+                  <img
+                    alt="User profile avatar"
+                    class="w-10 h-10 rounded-full ring-2 ring-indigo-100"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc_g6yEjB_mSR9Jx8cU-VTiPn26WePjTXlwYF4imYY9EbtxfVpaXRQ1t_VG0ESCcufn-eGv89Vm5EOCeowthySsP31LdeKZoNQrHdVZG5RTUVe31Qisv9co_Mu1A6gvIIs9FQqiK9MFWPYm4nwmrU777S6QjfQZO7mAURC4CuWDRcFyy_4U9-LvkocnfzkuLjGyWpW_ioIzY0kKumdLxsxJh-XDI58XdMuRHvsMdOeDO2IuaHSFegRdoqJsVocL6wmQfDPQmCJDuvR"
+                  />
+                </div>
+              </button>
+            </template>
+            <template #content-dropdown placement="bottom">
+              <div class="w-56 rounded-md bg-white shadow-lg py-1">
+                <button @click="handleLogout" class="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left">
+                  Logout
+                </button>
+              </div>
+            </template>
+          </Dropdown>
+
+
+          
         </div>
       </header>
 

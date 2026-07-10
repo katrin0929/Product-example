@@ -2,9 +2,10 @@
 import { useProjects } from '@/composables/useProjects';
 import { useProjectEdit } from '@/composables/useProjectEdit';
 import { onMounted, ref } from 'vue';
+import Dropdown from '@/components/Dropdown.vue';
 
 
-const { isModalOpen, openModal, closeModal, Modal, getProjects } = useProjects()
+const { isModalOpen, openModal, closeModal, Modal, getProjects, deleteProj } = useProjects()
 const { openProjectEdit } = useProjectEdit()
 
 
@@ -152,11 +153,23 @@ onMounted(async () => {
                   >
                     <span class="material-symbols-outlined" @click="openProjectEdit(project.id)">edit</span>
                   </button>
-                  <button
-                    class="p-2 text-outline hover:text-on-surface transition-colors rounded-sm hover:bg-surface-container-high"
-                  >
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
+
+                  <Dropdown>
+                    <template #trigger-el>
+                      <button class="p-2 text-outline hover:text-on-surface transition-colors rounded-sm hover:bg-surface-container-high">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </template>
+
+                    <template #content-dropdown>
+                      <div class="w-56 rounded-md bg-white shadow-lg py-1">
+                        <hr class="my-1" />
+                        <button  @click="deleteProj(project.id)" class="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600">
+                          Delete
+                        </button>
+                      </div>
+                    </template>
+                  </Dropdown>
                 </div>
               </div>
             </div>

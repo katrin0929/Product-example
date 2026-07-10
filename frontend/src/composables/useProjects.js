@@ -4,9 +4,11 @@ import { utils } from "../utils";
 
 export function useProjects() {
 
-  const { getTokens } = utils()  
+  const { getTokens } = utils() 
   const isModalOpen = ref(false);
   const baseUrl = "http://localhost:3009"
+  const isDownloading = ref(false);
+
 
   function openModal() {
     isModalOpen.value = true;
@@ -31,5 +33,23 @@ export function useProjects() {
           alert("privet");
         }
     }
-  return { isModalOpen, openModal, closeModal, Modal, getProjects};
+  async function deleteProj(projectId) {
+    const { accessToken } = getTokens();
+    if (isDownloading.value) return;
+    isDownloading.value = true;
+
+    try {
+      return await fetch(`${baseUrl}/projects/${projectId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } finally {
+      isDownloading.value = false;
+    }
+  } 
+
+  return { isModalOpen, openModal, closeModal, Modal, getProjects, deleteProj };
 }

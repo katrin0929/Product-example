@@ -9,8 +9,18 @@ const {
   loading,
   error,
   fetchDocuments,
-  uploadDocument,
+  uploadDocument,  
+  downloadDocument,
+  deleteDocument, 
 } = useDocuments('general')
+
+const handleDownload = (docId) => {
+  downloadDocument(docId)
+}
+
+const handleDelete = (docId) => {
+  deleteDocument(docId)
+}
 
 onMounted(fetchDocuments)
 </script>
@@ -76,7 +86,13 @@ onMounted(fetchDocuments)
 
       <!-- Documents grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <DocumentCard v-for="doc in documents" :key="doc.id" :doc="doc" />
+        <DocumentCard 
+          v-for="doc in documents" 
+          :key="doc.id" 
+          :doc="doc"
+          @download="handleDownload"
+          @delete="handleDelete"
+        />
       </div>
 
       <div class="h-20"></div>
