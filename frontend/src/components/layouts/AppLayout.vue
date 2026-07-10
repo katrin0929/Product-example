@@ -1,6 +1,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import Dropdown from '../Dropdown.vue'
+import NotificationsPopover from '../notifications/NotificationsPopover.vue'
 import router from "../../router/index";
 import { utils } from "../../utils";
 
@@ -111,10 +112,7 @@ function handleLogout() {
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <button class="p-2 text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-full transition-colors relative">
-            <span class="material-symbols-outlined">notifications</span>
-            <span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-slate-50"></span>
-          </button>
+          <NotificationsPopover />
           <button class="p-2 text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-full transition-colors">
             <span class="material-symbols-outlined">help_outline</span>
           </button>
