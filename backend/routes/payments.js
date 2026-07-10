@@ -1,16 +1,15 @@
 const { Router } = require('express');
 const Store = require('../lib/store');
-const { chkId, payId, invId, ntfId } = require('../lib/id');
+const { chkId, payId, invId } = require('../lib/id');
 const { AppError, asyncHandler } = require('../middleware/error-handler');
 const requireAuth = require('../middleware/auth');
-const { broadcast } = require('../ws/notifications');
+const { notifyUser } = require('../lib/notify');
 const config = require('../config');
 
 const productsStore = new Store('products.json');
 const checkoutsStore = new Store('checkouts.json');
 const paymentsStore = new Store('payments.json');
 const invoicesStore = new Store('invoices.json');
-const notificationsStore = new Store('notifications.json');
 
 // Hardcoded promo codes: code -> { type, value }
 const PROMO_CODES = {
@@ -19,7 +18,6 @@ const PROMO_CODES = {
   FREE5: { type: 'fixed', value: 500 },
 };
 
-let invoiceCounter = 0;
 
 // --- Products router ---
 const products = Router();
@@ -73,19 +71,18 @@ function loadCheckout(checkoutId) {
 }
 
 function notifyOwner(chk, title, body) {
-  const notification = {
-    id: ntfId(),
-    userId: chk.userId,
-    type: 'payment.status_updated',
-    title,
-    body,
-    createdAt: new Date().toISOString(),
-    read: false,
-  };
-  notificationsStore.insert(notification);
+  notifyUser(chk.userId, title, body);
+}
 
-  const { userId, ...publicNotification } = notification;
-  broadcast(chk.userId, publicNotification);
+// Номер выводится из данных, а не из счётчика в памяти — переживает рестарты
+function nextInvoiceNumber() {
+  const year = new Date().getFullYear();
+  const re = new RegExp(`^INV-${year}-(\\d+)$`);
+  const max = invoicesStore.readAll().reduce((acc, inv) => {
+    const m = re.exec(inv.number || '');
+    return m ? Math.max(acc, parseInt(m[1], 10)) : acc;
+  }, 0);
+  return `INV-${year}-${String(max + 1).padStart(4, '0')}`;
 }
 
 checkout.post('/', requireAuth, asyncHandler((req, res) => {
@@ -161,14 +158,14 @@ checkout.post('/:checkoutId/pay', asyncHandler((req, res) => {
   };
   paymentsStore.insert(payment);
 
-  invoiceCounter++;
+  const invoiceId = invId();
   const invoice = {
-    id: invId(),
+    id: invoiceId,
     userId: chk.userId,
     paymentId: payment.id,
-    number: `INV-${new Date().getFullYear()}-${String(invoiceCounter).padStart(4, '0')}`,
+    number: nextInvoiceNumber(),
     createdAt: new Date().toISOString(),
-    downloadUrl: null,
+    downloadUrl: `/invoices/${invoiceId}/download`,
   };
   invoicesStore.insert(invoice);
 

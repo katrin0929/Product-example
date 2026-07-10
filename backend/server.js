@@ -23,6 +23,7 @@ const adminAuthRoutes = require('./routes/admin-auth');
 const adminProductRoutes = require('./routes/admin-products');
 const adminUserRoutes = require('./routes/admin-users');
 const adminAdminRoutes = require('./routes/admin-admins');
+const adminBillingRoutes = require('./routes/admin-billing');
 
 // Ensure data & upload dirs exist
 ['data', 'uploads/avatars', 'uploads/documents'].forEach((dir) => {
@@ -60,6 +61,9 @@ app.use('/admin/auth', adminAuthRoutes);
 app.use('/admin/products', adminProductRoutes);
 app.use('/admin/users', adminUserRoutes);
 app.use('/admin/admins', adminAdminRoutes);
+app.use('/admin/checkouts', adminBillingRoutes.checkouts);
+app.use('/admin/payments', adminBillingRoutes.payments);
+app.use('/admin/invoices', adminBillingRoutes.invoices);
 
 // Error handler (must be last)
 app.use(errorHandler);
