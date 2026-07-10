@@ -1,5 +1,8 @@
+const Store = require('../lib/store');
 const { verifyToken } = require('../lib/jwt');
 const { AppError } = require('./error-handler');
+
+const users = new Store('users.json');
 
 function requireAuth(req, res, next) {
   const header = req.headers.authorization;
@@ -7,13 +10,25 @@ function requireAuth(req, res, next) {
     return next(new AppError(401, 'UNAUTHORIZED', 'Missing or invalid authorization header'));
   }
 
+  let decoded;
   try {
-    const decoded = verifyToken(header.slice(7));
-    req.user = { id: decoded.sub, email: decoded.email };
-    next();
+    decoded = verifyToken(header.slice(7));
   } catch {
-    next(new AppError(401, 'UNAUTHORIZED', 'Invalid or expired token'));
+    return next(new AppError(401, 'UNAUTHORIZED', 'Invalid or expired token'));
   }
+
+  // Store lookup: удалённый или заблокированный пользователь теряет доступ сразу,
+  // не дожидаясь истечения токена
+  const user = users.findById(decoded.sub);
+  if (!user) {
+    return next(new AppError(401, 'UNAUTHORIZED', 'User not found'));
+  }
+  if (user.blocked) {
+    return next(new AppError(403, 'USER_BLOCKED', 'Account is blocked'));
+  }
+
+  req.user = { id: user.id, email: user.email };
+  next();
 }
 
 module.exports = requireAuth;

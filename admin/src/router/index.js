@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../pages/Login.vue'
 import CreditPacks from '../pages/CreditPacks.vue'
+import Users from '../pages/Users.vue'
+import Admins from '../pages/Admins.vue'
+import AdminLayout from '../components/AdminLayout.vue'
 import { getToken } from '../utils'
 
 const routes = [
@@ -11,8 +14,24 @@ const routes = [
   },
   {
     path: '/',
-    name: 'CreditPacks',
-    component: CreditPacks,
+    component: AdminLayout,
+    children: [
+      {
+        path: '',
+        name: 'CreditPacks',
+        component: CreditPacks,
+      },
+      {
+        path: 'users',
+        name: 'Users',
+        component: Users,
+      },
+      {
+        path: 'admins',
+        name: 'Admins',
+        component: Admins,
+      },
+    ],
   },
 ]
 

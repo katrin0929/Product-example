@@ -467,6 +467,70 @@ components:
           type: integer
           minimum: 0
 
+    AdminUser:
+      type: object
+      required: [id, email, emailVerified, name, blocked]
+      properties:
+        id: { type: string, example: usr_123 }
+        email: { type: string, format: email }
+        emailVerified: { type: boolean }
+        name: { type: string }
+        phone: { type: string, nullable: true }
+        avatarUrl: { type: string, nullable: true }
+        address: { type: object, nullable: true }
+        blocked: { type: boolean }
+
+    AdminUserDetail:
+      type: object
+      required: [user, summary]
+      properties:
+        user:
+          $ref: "#/components/schemas/AdminUser"
+        summary:
+          type: object
+          required:
+            [
+              paymentsCount,
+              totalSpent,
+              availableCredits,
+              projectsCount,
+              documentsCount,
+              currency,
+            ]
+          properties:
+            paymentsCount: { type: integer, example: 2 }
+            totalSpent:
+              type: integer
+              example: 3998
+              description: Sum of paid payments in minor units
+            availableCredits: { type: integer, example: 19 }
+            projectsCount: { type: integer, example: 1 }
+            documentsCount: { type: integer, example: 3 }
+            currency: { type: string, example: USD }
+
+    AdminUpdateUserRequest:
+      type: object
+      properties:
+        name: { type: string }
+        phone: { type: string, nullable: true }
+
+    AdminAccount:
+      type: object
+      required: [id, email, name, createdAt]
+      properties:
+        id: { type: string, example: adm_123 }
+        email: { type: string, format: email }
+        name: { type: string, example: Admin }
+        createdAt: { type: string, format: date-time }
+
+    CreateAdminRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        name: { type: string }
+
   responses:
     Unauthorized:
       description: Unauthorized
@@ -551,6 +615,11 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/LoginResponse" }
         "400": { $ref: "#/components/responses/BadRequest" }
+        "403":
+          description: Account is blocked (USER_BLOCKED)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
 
   /auth/refresh:
     post:
@@ -1218,6 +1287,175 @@ paths:
           schema: { type: string }
       responses:
         "204": { description: No Content }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List app users
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminUser" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/users/{userId}:
+    get:
+      tags: [Admin]
+      summary: App user details with billing/activity summary
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserDetail" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Admin]
+      summary: Update app user profile (name, phone)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminUpdateUserRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUser" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Admin]
+      summary: Delete app user and all related data (full cascade)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: User and all related data removed }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/users/{userId}/block:
+    post:
+      tags: [Admin]
+      summary: Block app user (immediate; also revokes refresh tokens)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK (idempotent)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUser" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/users/{userId}/unblock:
+    post:
+      tags: [Admin]
+      summary: Unblock app user
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK (idempotent)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUser" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/admins:
+    get:
+      tags: [Admin]
+      summary: List admin accounts
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminAccount" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Admin]
+      summary: Create admin account
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateAdminRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminAccount" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/admins/{adminId}:
+    delete:
+      tags: [Admin]
+      summary: Delete admin account (self-delete is forbidden)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: adminId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: No Content }
+        "400":
+          description: Cannot delete own account (CANNOT_DELETE_SELF)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }

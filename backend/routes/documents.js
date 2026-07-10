@@ -94,21 +94,4 @@ router.delete('/:documentId', asyncHandler((req, res) => {
   res.status(204).end();
 }));
 
-// Удаляет все документы пользователя: и записи, и файлы с диска.
-// Используется при каскадном удалении аккаунта (DELETE /me).
-function removeUserDocuments(userId) {
-  const userDocs = documents.filterBy('userId', userId);
-
-  for (const doc of userDocs) {
-    try {
-      fs.unlinkSync(doc.filePath);
-    } catch {
-      // File might already be deleted
-    }
-  }
-
-  const rest = documents.readAll().filter((d) => d.userId !== userId);
-  documents.writeAll(rest);
-}
-
-module.exports = { router, removeUserDocuments };
+module.exports = { router };

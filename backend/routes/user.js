@@ -8,12 +8,10 @@ const { expId } = require('../lib/id');
 const { AppError, asyncHandler } = require('../middleware/error-handler');
 const requireAuth = require('../middleware/auth');
 const config = require('../config');
-const { removeUserDocuments } = require('./documents');
+const { deleteUserCascade } = require('../lib/user-cascade');
 
 const users = new Store('users.json');
 const exports_ = new Store('exports.json');
-const notifications = new Store('notifications.json');
-const refreshTokens = new Store('refresh-tokens.json');
 
 // Avatar upload config
 const avatarStorage = multer.diskStorage({
@@ -67,17 +65,7 @@ router.patch('/', asyncHandler((req, res) => {
 
 // DELETE /me
 router.delete('/', asyncHandler((req, res) => {
-  users.remove(req.user.id);
-
-  // Cleanup related data
-  removeUserDocuments(req.user.id);
-
-  const allNtf = notifications.readAll().filter((n) => n.userId !== req.user.id);
-  notifications.writeAll(allNtf);
-
-  const allRt = refreshTokens.readAll().filter((t) => t.userId !== req.user.id);
-  refreshTokens.writeAll(allRt);
-
+  deleteUserCascade(req.user.id);
   res.status(204).end();
 }));
 

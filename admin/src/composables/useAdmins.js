@@ -1,18 +1,18 @@
 import { ref } from 'vue'
 import { adminFetch } from './useAdminApi'
 
-export function useProducts() {
-  const products = ref([])
+export function useAdmins() {
+  const admins = ref([])
   const loading = ref(false)
   const saving = ref(false)
   const error = ref(null)
 
-  async function fetchProducts() {
+  async function fetchAdmins() {
     loading.value = true
     error.value = null
     try {
-      const res = await adminFetch('/admin/products')
-      if (res !== null) products.value = res
+      const res = await adminFetch('/admin/admins')
+      if (res !== null) admins.value = res
     } catch (e) {
       error.value = e.message
     } finally {
@@ -20,14 +20,13 @@ export function useProducts() {
     }
   }
 
-  // method: 'POST' | 'PATCH' | 'DELETE'; после успеха перечитывает список
   async function mutate(method, path, payload) {
     saving.value = true
     error.value = null
     try {
-      const res = await adminFetch(`/admin/products${path}`, { method, body: payload })
+      const res = await adminFetch(`/admin/admins${path}`, { method, body: payload })
       if (res === null) return false
-      await fetchProducts()
+      await fetchAdmins()
       return true
     } catch (e) {
       error.value = e.message
@@ -38,13 +37,12 @@ export function useProducts() {
   }
 
   return {
-    products,
+    admins,
     loading,
     saving,
     error,
-    fetchProducts,
-    createProduct: (payload) => mutate('POST', '', payload),
-    updateProduct: (id, payload) => mutate('PATCH', `/${id}`, payload),
-    deleteProduct: (id) => mutate('DELETE', `/${id}`),
+    fetchAdmins,
+    createAdmin: (payload) => mutate('POST', '', payload),
+    deleteAdmin: (id) => mutate('DELETE', `/${id}`),
   }
 }

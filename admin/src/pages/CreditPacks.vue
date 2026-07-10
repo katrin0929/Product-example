@@ -1,9 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAdminAuth } from '@/composables/useAdminAuth'
 import { useProducts } from '@/composables/useProducts'
 
-const { admin, fetchMe, signOut } = useAdminAuth()
 const { products, loading, saving, error, fetchProducts, createProduct, updateProduct, deleteProduct } = useProducts()
 
 const emptyForm = () => ({ title: '', description: '', price: '', credits: 0, currency: 'USD' })
@@ -11,10 +9,7 @@ const form = ref(emptyForm())
 const editingId = ref(null)
 const formError = ref(null)
 
-onMounted(() => {
-  fetchMe()
-  fetchProducts()
-})
+onMounted(fetchProducts)
 
 function startEdit(pack) {
   editingId.value = pack.id
@@ -79,28 +74,7 @@ const formatPrice = (pack) => `${(pack.amount / 100).toFixed(2)} ${pack.currency
 </script>
 
 <template>
-  <div class="min-h-screen bg-background-light">
-    <header class="flex items-center justify-between border-b border-outline-variant/30 bg-surface-container-lowest px-8 py-4">
-      <div class="flex items-center gap-3">
-        <div class="size-9 bg-primary rounded-lg flex items-center justify-center text-on-primary">
-          <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
-        </div>
-        <h1 class="text-lg font-extrabold text-on-surface tracking-tight headline">DEVFED Admin</h1>
-      </div>
-      <div class="flex items-center gap-4">
-        <span v-if="admin" class="text-sm text-on-surface-variant">{{ admin.email }}</span>
-        <button
-          type="button"
-          @click="signOut"
-          class="flex items-center gap-1.5 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
-        >
-          <span class="material-symbols-outlined text-lg">logout</span>
-          Logout
-        </button>
-      </div>
-    </header>
-
-    <main class="p-8 max-w-6xl mx-auto space-y-8">
+  <main class="p-8 max-w-6xl mx-auto space-y-8">
       <div class="space-y-2">
         <h2 class="text-3xl font-extrabold text-on-surface tracking-tight headline">Credit Packs</h2>
         <p class="text-on-surface-variant text-sm">Create, edit, and delete the credit packs sold on the Billing page.</p>
@@ -245,6 +219,5 @@ const formatPrice = (pack) => `${(pack.amount / 100).toFixed(2)} ${pack.currency
           </form>
         </aside>
       </div>
-    </main>
-  </div>
+  </main>
 </template>

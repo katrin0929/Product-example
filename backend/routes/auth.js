@@ -105,6 +105,10 @@ router.post('/login', asyncHandler(async (req, res) => {
     throw new AppError(400, 'INVALID_CREDENTIALS', 'Invalid email or password');
   }
 
+  if (user.blocked) {
+    throw new AppError(403, 'USER_BLOCKED', 'Account is blocked');
+  }
+
   if (!user.emailVerified) {
     throw new AppError(400, 'EMAIL_NOT_VERIFIED', 'Please verify your email first');
   }
