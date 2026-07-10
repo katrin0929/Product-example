@@ -1,8 +1,20 @@
 <script setup>
 import { useDashboard } from '@/composables/useDashboard';
 import Modal from "@/components/Modal.vue";
+import Dropdown from "@/components/Dropdown.vue";
 
 const { isModalOpen, openModal, closeModal } = useDashboard()
+
+const recentDocs = [
+  { icon: 'article', name: 'API_Architecture_v2.pdf', modified: 'Modified 2h ago', ownerImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBH0ZEwxYAze6yF5Mh7Psw-Bo15y1ek3eje2FtznshGbBX1Yb3jh7URt6iY1TpKty_0r6FL1-BkZKzvb9n5L2G56CNH5-4DdaivVBc1rcMfOt7uJ8eBgNZo6_3f7PmEhjkqyhQP52wQoapGFVIM38n3YYkf6tq2uR7NzcrcEgb7oJD158trGYohAZ0OnHrorSpSkdN3FJSR6CPQwk9Z2oh3lPWNaugchneTq7pfGQcY3k5NYMHoUu1zEK6_hPCCVbj56csd1ZaUrsBz', status: 'In Review' },
+  { icon: 'description', name: 'Q4_Performance_Metrics.xlsx', modified: 'Modified 5h ago', ownerImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAefKZSRVU4k1ntDVG_kqnUuzF9bqnhZ5ki5RsF96B2dF_pOV2JSW7m2Oz5Uf-9xHw_Uqze-2H_m4PAnxwKauOMrFSDXsA8y3VUwDIPHxp4TSOdYmqlo9xacUxtfbD6iFlG6CG1wnNTKuJMKDjcNsqXbQVO0f-HJMJubpETJ3fYZb2rDXxMj0D89fvbB5KrKQAVBLW3c6Pkxl_4Jy1TfHzijVTfAWwGfMRSu7SF3POhjs64f4nPy2N9KIISxbTtSndoKv57fWU58nq7', status: 'Completed' },
+  { icon: 'folder_zip', name: 'Project_Alpha_Assets.zip', modified: 'Modified 1d ago', ownerImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5wkqYtH0SXTOb2kuCzbIvjgFqKf3xM3b-puBY93k_-W5Rmdp4HF1W9nM-V2z6hYTM9-rYuyJ_Mu2NcdulLVQ75K5HAtw-SFB0JoBGMclitUPiUW8zcmgl70Ie1VlKLuUtJGtwoEqaeQVHJ3b1SYxRZR4rvXQSfFDMyPQRHH2Q4OX3QnAd4uHSNGI2jBKebEH-LdUqTYLwrKNDb5eHMt2VnOvMlS4vnQYFPFN39w89qCzCkb2hl52TucexM2rBaqZI4Uu5YA-G-ydQ', status: 'Completed' },
+]
+
+const statusClass = {
+  'In Review': 'bg-amber-100 text-amber-700',
+  Completed: 'bg-emerald-100 text-emerald-700',
+}
 </script>
 
 <template>
@@ -99,76 +111,39 @@ const { isModalOpen, openModal, closeModal } = useDashboard()
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr class="hover:bg-slate-50/50 transition-colors">
+              <tr v-for="doc in recentDocs" :key="doc.name" class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-indigo-400">article</span>
+                    <span class="material-symbols-outlined text-indigo-400">{{ doc.icon }}</span>
                     <div>
-                      <p class="text-sm font-semibold text-slate-900">API_Architecture_v2.pdf</p>
-                      <p class="text-xs text-slate-400">Modified 2h ago</p>
-                    </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex -space-x-2 overflow-hidden">
-                    <img alt="Team member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH0ZEwxYAze6yF5Mh7Psw-Bo15y1ek3eje2FtznshGbBX1Yb3jh7URt6iY1TpKty_0r6FL1-BkZKzvb9n5L2G56CNH5-4DdaivVBc1rcMfOt7uJ8eBgNZo6_3f7PmEhjkqyhQP52wQoapGFVIM38n3YYkf6tq2uR7NzcrcEgb7oJD158trGYohAZ0OnHrorSpSkdN3FJSR6CPQwk9Z2oh3lPWNaugchneTq7pfGQcY3k5NYMHoUu1zEK6_hPCCVbj56csd1ZaUrsBz" />
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">In Review</span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <button class="text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </td>
-              </tr>
-              <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-indigo-400">description</span>
-                    <div>
-                      <p class="text-sm font-semibold text-slate-900">Q4_Performance_Metrics.xlsx</p>
-                      <p class="text-xs text-slate-400">Modified 5h ago</p>
-                    </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex -space-x-2 overflow-hidden">
-                    <img alt="Team member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAefKZSRVU4k1ntDVG_kqnUuzF9bqnhZ5ki5RsF96B2dF_pOV2JSW7m2Oz5Uf-9xHw_Uqze-2H_m4PAnxwKauOMrFSDXsA8y3VUwDIPHxp4TSOdYmqlo9xacUxtfbD6iFlG6CG1wnNTKuJMKDjcNsqXbQVO0f-HJMJubpETJ3fYZb2rDXxMj0D89fvbB5KrKQAVBLW3c6Pkxl_4Jy1TfHzijVTfAWwGfMRSu7SF3POhjs64f4nPy2N9KIISxbTtSndoKv57fWU58nq7" />
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Completed</span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <button class="text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </td>
-              </tr>
-              <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-indigo-400">folder_zip</span>
-                    <div>
-                      <p class="text-sm font-semibold text-slate-900">Project_Alpha_Assets.zip</p>
-                      <p class="text-xs text-slate-400">Modified 1d ago</p>
+                      <p class="text-sm font-semibold text-slate-900">{{ doc.name }}</p>
+                      <p class="text-xs text-slate-400">{{ doc.modified }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex -space-x-2 overflow-hidden">
-                    <img alt="Team member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5wkqYtH0SXTOb2kuCzbIvjgFqKf3xM3b-puBY93k_-W5Rmdp4HF1W9nM-V2z6hYTM9-rYuyJ_Mu2NcdulLVQ75K5HAtw-SFB0JoBGMclitUPiUW8zcmgl70Ie1VlKLuUtJGtwoEqaeQVHJ3b1SYxRZR4rvXQSfFDMyPQRHH2Q4OX3QnAd4uHSNGI2jBKebEH-LdUqTYLwrKNDb5eHMt2VnOvMlS4vnQYFPFN39w89qCzCkb2hl52TucexM2rBaqZI4Uu5YA-G-ydQ" />
+                    <img alt="Team member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" :src="doc.ownerImg" />
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Completed</span>
+                  <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold', statusClass[doc.status]]">{{ doc.status }}</span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <button class="text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
+                  <Dropdown>
+                    <template #trigger-el>
+                      <button class="text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </template>
+                    <template #content-dropdown>
+                      <div class="w-56 rounded-md bg-white shadow-lg py-1">
+                        <button type="button" class="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-left"><span class="material-symbols-outlined text-lg">download</span>Download</button>
+                        <hr class="my-1" />
+                        <button type="button" class="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"><span class="material-symbols-outlined text-lg">delete</span>Delete</button>
+                      </div>
+                    </template>
+                  </Dropdown>
                 </td>
               </tr>
             </tbody>
