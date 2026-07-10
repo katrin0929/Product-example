@@ -1,4 +1,15 @@
 <script setup>
+import { ref } from "vue";
+
+
+const totalSpent = "$10000"
+const availableCredits = "14"
+const paymentPendingAmount = "$50"
+const paymentPendingCount = "1"
+
+
+
+
 const summary = [
   { icon: 'account_balance_wallet', tone: 'bg-indigo-50 text-primary', tag: 'Lifetime', value: '$2,480.00', label: 'Total Spent' },
   { icon: 'toll', tone: 'bg-emerald-50 text-emerald-600', tag: 'Balance', value: '14', label: 'Available Credits' },
@@ -22,10 +33,27 @@ const payments = [
 ]
 
 const creditPacks = [
-  { qty: 5, price: '$20', popular: false },
-  { qty: 14, price: '$56', popular: true },
-  { qty: 30, price: '$120', popular: false },
+  { qty: 5, price: '$20', popular: false, select: true },
+  { qty: 14, price: '$56', popular: true, select: false },
+  { qty: 30, price: '$120', popular: false, select: false },
 ]
+
+const selectPack = (qty) => {
+  creditPacks.filter((pack) => {
+    return pack.select === true
+  }).map((pack) => {
+    pack.select = false
+  })
+
+  creditPacks.filter((pack) => {
+    return pack.qty == qty
+  }).map((pack) => {
+    pack.select = true
+  })
+
+  // this.$forceUpdate()
+  
+}
 </script>
 
 <template>
@@ -43,14 +71,34 @@ const creditPacks = [
 
     <!-- Summary stats -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div v-for="card in summary" :key="card.label" class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+      <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
         <div class="flex justify-between items-start mb-4">
-          <div :class="['w-12 h-12 rounded-lg flex items-center justify-center', card.tone]"><span class="material-symbols-outlined">{{ card.icon }}</span></div>
-          <span class="text-[0.6875rem] font-bold text-slate-400 tracking-widest uppercase">{{ card.tag }}</span>
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-indigo-50 text-primary"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+          <span class="text-[0.6875rem] font-bold text-slate-400 tracking-widest uppercase">Lifetime</span>
         </div>
-        <p class="text-3xl font-extrabold text-slate-900 mb-1 headline">{{ card.value }}</p>
-        <p class="text-sm font-medium text-slate-500">{{ card.label }}</p>
+        <p class="text-3xl font-extrabold text-slate-900 mb-1 headline"> {{ totalSpent }} </p>
+        <p class="text-sm font-medium text-slate-500"> Total Spent</p>
       </div>
+
+      <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-600"><span class="material-symbols-outlined">toll</span></div>
+          <span class="text-[0.6875rem] font-bold text-slate-400 tracking-widest uppercase">Balance</span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mb-1 headline"> {{ availableCredits }} </p>
+        <p class="text-sm font-medium text-slate-500"> Available Credits</p>
+      </div>
+
+      <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-50 text-amber-600"><span class="material-symbols-outlined">hourglass_top</span></div>
+          <span class="text-[0.6875rem] font-bold text-slate-400 tracking-widest uppercase">Processing</span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mb-1 headline"> {{ paymentPendingAmount }} </p>
+        <p class="text-sm font-medium text-slate-500">Payments pending: {{ paymentPendingCount }}</p>
+      </div>
+
+      
     </section>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -106,11 +154,11 @@ const creditPacks = [
           <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1">shopping_bag</span><h3 class="text-lg font-bold tracking-tight headline">Make a Purchase</h3></div>
           <p class="text-xs text-on-surface-variant -mt-2">One-time purchase of Pro Credits. No subscription.</p>
           <div class="grid grid-cols-3 gap-2">
-            <button
+            <button @click="selectPack(pack.qty)"
               v-for="pack in creditPacks"
               :key="pack.qty"
               type="button"
-              :class="pack.popular
+              :class="pack.select
                 ? 'relative flex flex-col items-center gap-0.5 py-3 rounded-lg border-2 border-primary bg-indigo-50/60 text-primary'
                 : 'flex flex-col items-center gap-0.5 py-3 rounded-lg border border-outline-variant/30 text-on-surface hover:border-primary/40 hover:bg-indigo-50/40 transition-colors'"
             >
