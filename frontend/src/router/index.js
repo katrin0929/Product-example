@@ -8,6 +8,7 @@ import ProjectSettings from '../pages/ProjectSettings.vue'
 import Documents from "../pages/Documents.vue";
 import Billing from "../pages/Billing.vue";
 import PaymentMethodAdd from "../pages/PaymentMethodAdd.vue";
+import Purchase from "../pages/Purchase.vue";
 import PaymentMethodEdit from "../pages/PaymentMethodEdit.vue";
 import Profile from "../pages/Profile.vue";
 import AppLayout from "@/components/layouts/AppLayout.vue";
@@ -78,6 +79,12 @@ const routes = [
         path: "/Billing",
         name: "Billing",
         component: Billing,
+      },
+
+      {
+        path: "/Purchase",
+        name: "Purchase",
+        component: Purchase,
       },
 
       {
