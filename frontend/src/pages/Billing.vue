@@ -175,13 +175,13 @@ const selectPack = (qty) => {
 
         <!-- Payment method -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-4">
-          <div class="flex items-center justify-between"><h3 class="text-lg font-bold tracking-tight headline">Payment Method</h3><button type="button" class="text-primary text-sm font-bold hover:underline">Edit</button></div>
+          <div class="flex items-center justify-between"><h3 class="text-lg font-bold tracking-tight headline">Payment Method</h3><router-link :to="{ name: 'PaymentMethodEdit' }" class="text-primary text-sm font-bold hover:underline">Edit</router-link></div>
           <div class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low">
             <div class="w-12 h-8 rounded bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-[0.625rem] font-extrabold tracking-wider">VISA</div>
             <div class="flex-1"><p class="text-sm font-semibold text-on-surface">•••• •••• •••• 4242</p><p class="text-xs text-on-surface-variant">Expires 09 / 2028</p></div>
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-emerald-100 text-emerald-700">Default</span>
           </div>
-          <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">add</span>Add payment method</button>
+          <router-link :to="{ name: 'PaymentMethodAdd' }" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">add</span>Add payment method</router-link>
         </div>
       </aside>
     </div>

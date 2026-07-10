@@ -11,6 +11,7 @@ tags:
   - name: User
   - name: Documents
   - name: Payments
+  - name: Payment Methods
   - name: Invoices
   - name: Notifications
   - name: Projects
@@ -267,6 +268,43 @@ components:
           type: string
           enum: [pending, paid, failed]
         createdAt: { type: string, format: date-time }
+
+    PaymentMethod:
+      type: object
+      required: [id, brand, last4, expMonth, expYear, isDefault, createdAt, updatedAt]
+      properties:
+        id: { type: string, example: pm_1a2b3c4d }
+        brand: { type: string, example: Visa }
+        last4: { type: string, example: "4242" }
+        expMonth: { type: integer, example: 9 }
+        expYear: { type: integer, example: 2028 }
+        cardholderName: { type: string, nullable: true, example: Jane Doe }
+        isDefault: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CreatePaymentMethodRequest:
+      type: object
+      required: [cardNumber, expMonth, expYear]
+      properties:
+        cardNumber:
+          {
+            type: string,
+            example: "4242 4242 4242 4242",
+            description: Full card number; only brand and last4 are stored,
+          }
+        cardholderName: { type: string, nullable: true }
+        expMonth: { type: integer, example: 9 }
+        expYear: { type: integer, example: 2028 }
+        isDefault: { type: boolean }
+
+    UpdatePaymentMethodRequest:
+      type: object
+      properties:
+        cardholderName: { type: string, nullable: true }
+        expMonth: { type: integer }
+        expYear: { type: integer }
+        isDefault: { type: boolean }
 
     BillingSummary:
       type: object
@@ -824,6 +862,59 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/Payment" }
+
+  /payment-methods:
+    post:
+      tags: [Payment Methods]
+      summary: Add a payment method
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreatePaymentMethodRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /payment-methods/{paymentMethodId}:
+    patch:
+      tags: [Payment Methods]
+      summary: Update payment method fields
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: paymentMethodId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdatePaymentMethodRequest" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
 
   /invoices:
     get:

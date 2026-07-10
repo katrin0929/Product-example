@@ -11,5 +11,6 @@ module.exports = {
   ntfId: () => makeId('ntf'),
   expId: () => makeId('exp'),
   prjId: () => makeId('prj'),
+  pmId: () => makeId('pm'),
   reqId: () => makeId('req'),
 };
