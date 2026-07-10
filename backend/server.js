@@ -19,6 +19,8 @@ const paymentMethodRoutes = require('./routes/payment-methods');
 const invoiceRoutes = require('./routes/invoices');
 const notificationRoutes = require('./routes/notifications');
 const projectRoutes = require('./routes/projects');
+const adminAuthRoutes = require('./routes/admin-auth');
+const adminProductRoutes = require('./routes/admin-products');
 
 // Ensure data & upload dirs exist
 ['data', 'uploads/avatars', 'uploads/documents'].forEach((dir) => {
@@ -52,6 +54,8 @@ app.use('/billing', paymentRoutes.billing);
 app.use('/invoices', invoiceRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/projects', projectRoutes);
+app.use('/admin/auth', adminAuthRoutes);
+app.use('/admin/products', adminProductRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

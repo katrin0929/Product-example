@@ -13,4 +13,6 @@ module.exports = {
   prjId: () => makeId('prj'),
   pmId: () => makeId('pm'),
   reqId: () => makeId('req'),
+  prdId: () => makeId('prd'),
+  admId: () => makeId('adm'),
 };
