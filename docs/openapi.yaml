@@ -208,6 +208,8 @@ components:
             description: Minor units (e.g. cents),
           }
         currency: { type: string, example: USD }
+        credits:
+          { type: integer, example: 5, description: Credits granted on purchase }
 
     CheckoutRequest:
       type: object
@@ -224,10 +226,23 @@ components:
         productId: { type: string }
         amount: { type: integer }
         currency: { type: string }
+        credits: { type: integer, example: 5 }
         status:
           type: string
           enum: [pending, paid, failed]
         createdAt: { type: string, format: date-time }
+        paymentUrl:
+          {
+            type: string,
+            example: "http://localhost:5173/pay/chk_123",
+            description: Public payment page for this checkout,
+          }
+        productTitle:
+          {
+            type: string,
+            example: Basic Pack,
+            description: "Returned by GET /checkout/{checkoutId}",
+          }
 
     PayCheckoutResponse:
       type: object
@@ -247,10 +262,32 @@ components:
         checkoutId: { type: string }
         amount: { type: integer }
         currency: { type: string }
+        credits: { type: integer, example: 5 }
         status:
           type: string
           enum: [pending, paid, failed]
         createdAt: { type: string, format: date-time }
+
+    BillingSummary:
+      type: object
+      required:
+        [totalSpent, availableCredits, pendingAmount, pendingCount, currency]
+      properties:
+        totalSpent:
+          {
+            type: integer,
+            example: 2999,
+            description: Sum of paid payments in minor units,
+          }
+        availableCredits: { type: integer, example: 14 }
+        pendingAmount:
+          {
+            type: integer,
+            example: 999,
+            description: Sum of pending checkouts in minor units,
+          }
+        pendingCount: { type: integer, example: 1 }
+        currency: { type: string, example: USD }
 
     Invoice:
       type: object
@@ -717,8 +754,7 @@ paths:
   /checkout/{checkoutId}:
     get:
       tags: [Payments]
-      summary: Get checkout status
-      security: [{ bearerAuth: [] }]
+      summary: Get checkout details (public, used by the payment page)
       parameters:
         - in: path
           name: checkoutId
@@ -734,8 +770,7 @@ paths:
   /checkout/{checkoutId}/pay:
     post:
       tags: [Payments]
-      summary: Pseudo-pay checkout (training flow)
-      security: [{ bearerAuth: [] }]
+      summary: Confirm test payment (public, always succeeds)
       parameters:
         - in: path
           name: checkoutId
@@ -747,6 +782,34 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PayCheckoutResponse" }
+
+  /checkout/{checkoutId}/decline:
+    post:
+      tags: [Payments]
+      summary: Decline test payment (public)
+      parameters:
+        - in: path
+          name: checkoutId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PayCheckoutResponse" }
+
+  /billing/summary:
+    get:
+      tags: [Payments]
+      summary: Billing summary (total spent, available credits, pending)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingSummary" }
 
   /payments:
     get:

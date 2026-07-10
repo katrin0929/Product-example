@@ -13,9 +13,9 @@ const projects = new Store('projects.json');
 
 // Seed products
 products.writeAll([
-  { id: 'prd_basic', title: 'Basic Pack', description: 'Starter package with essential features', amount: 999, currency: 'USD' },
-  { id: 'prd_pro', title: 'Pro Pack', description: 'Professional package with advanced tools', amount: 2999, currency: 'USD' },
-  { id: 'prd_enterprise', title: 'Enterprise Pack', description: 'Full enterprise solution with premium support', amount: 9999, currency: 'USD' },
+  { id: 'prd_basic', title: 'Basic Pack', description: 'Starter package with essential features', amount: 999, currency: 'USD', credits: 5 },
+  { id: 'prd_pro', title: 'Pro Pack', description: 'Professional package with advanced tools', amount: 2999, currency: 'USD', credits: 14 },
+  { id: 'prd_enterprise', title: 'Enterprise Pack', description: 'Full enterprise solution with premium support', amount: 9999, currency: 'USD', credits: 30 },
 ]);
 
 // Initialize empty collections

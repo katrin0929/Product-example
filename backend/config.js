@@ -2,6 +2,7 @@ require('dotenv').config();
 
 module.exports = {
   PORT: process.env.PORT || 3009,
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
   JWT_SECRET: process.env.JWT_SECRET || 'dev-secret-fallback',
   JWT_ACCESS_TTL: process.env.JWT_ACCESS_TTL || '1d',
   JWT_REFRESH_TTL: process.env.JWT_REFRESH_TTL || '7d',

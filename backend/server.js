@@ -46,6 +46,7 @@ app.use('/products', paymentRoutes.products);
 app.use('/promo', paymentRoutes.promo);
 app.use('/checkout', paymentRoutes.checkout);
 app.use('/payments', paymentRoutes.payments);
+app.use('/billing', paymentRoutes.billing);
 app.use('/invoices', invoiceRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/projects', projectRoutes);

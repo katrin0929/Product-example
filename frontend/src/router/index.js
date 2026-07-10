@@ -10,6 +10,9 @@ import Billing from "../pages/Billing.vue";
 import Profile from "../pages/Profile.vue";
 import AppLayout from "@/components/layouts/AppLayout.vue";
 import ProjectEdit from '../pages/ProjectEdit.vue'
+import Payment from '../pages/Payment.vue'
+import PaymentSuccess from '../pages/PaymentSuccess.vue'
+import PaymentFail from '../pages/PaymentFail.vue'
 
 const routes = [
   {
@@ -27,6 +30,24 @@ const routes = [
     path: "/Verify",
     name: "Verify",
     component: Verify,
+  },
+
+  {
+    path: "/pay/:checkoutId",
+    name: "Payment",
+    component: Payment,
+  },
+
+  {
+    path: "/pay/:checkoutId/success",
+    name: "PaymentSuccess",
+    component: PaymentSuccess,
+  },
+
+  {
+    path: "/pay/:checkoutId/fail",
+    name: "PaymentFail",
+    component: PaymentFail,
   },
 
   {

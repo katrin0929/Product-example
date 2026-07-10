@@ -32,27 +32,16 @@ const payments = [
   { invoice: 'INV-2026-0061', desc: 'Pro Credits — 5 pack', date: 'Feb 07, 2026', amount: '$20.00', status: 'Paid' },
 ]
 
-const creditPacks = [
+const creditPacks = ref([
   { qty: 5, price: '$20', popular: false, select: true },
   { qty: 14, price: '$56', popular: true, select: false },
   { qty: 30, price: '$120', popular: false, select: false },
-]
+])
 
 const selectPack = (qty) => {
-  creditPacks.filter((pack) => {
-    return pack.select === true
-  }).map((pack) => {
-    pack.select = false
+  creditPacks.value.forEach((pack) => {
+    pack.select = pack.qty === qty
   })
-
-  creditPacks.filter((pack) => {
-    return pack.qty == qty
-  }).map((pack) => {
-    pack.select = true
-  })
-
-  // this.$forceUpdate()
-  
 }
 </script>
 
