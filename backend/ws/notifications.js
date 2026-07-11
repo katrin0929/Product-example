@@ -16,6 +16,10 @@ function setupWebSocket(server) {
 
         if (msg.type === 'auth') {
           const decoded = verifyToken(msg.token);
+          if (decoded.type !== 'access') {
+            ws.send(JSON.stringify({ type: 'auth.error', message: 'Invalid token type' }));
+            return;
+          }
           userId = decoded.sub;
 
           if (!clients.has(userId)) {

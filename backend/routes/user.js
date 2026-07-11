@@ -2,6 +2,7 @@ const { Router } = require('express');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const Store = require('../lib/store');
 const { generateOtp, verifyOtp } = require('../lib/otp');
 const { expId } = require('../lib/id');
@@ -14,21 +15,32 @@ const users = new Store('users.json');
 const exports_ = new Store('exports.json');
 
 // Avatar upload config
+const AVATARS_DIR = path.join(__dirname, '..', 'uploads', 'avatars');
+
+// Белый список типов. Расширение берём из проверенного mime, а не из имени
+// файла клиента, — иначе можно сохранить usr_x.html/.svg и получить stored XSS.
+// SVG исключён намеренно (может содержать скрипт).
+const AVATAR_MIME_EXT = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
+
 const avatarStorage = multer.diskStorage({
-  destination: path.join(__dirname, '..', 'uploads', 'avatars'),
+  destination: AVATARS_DIR,
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${req.user.id}${ext}`);
+    cb(null, `${req.user.id}${AVATAR_MIME_EXT[file.mimetype]}`);
   },
 });
 const uploadAvatar = multer({
   storage: avatarStorage,
   limits: { fileSize: config.UPLOAD_MAX_SIZE },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (AVATAR_MIME_EXT[file.mimetype]) {
       cb(null, true);
     } else {
-      cb(new AppError(400, 'INVALID_FILE', 'Only image files are allowed'));
+      cb(new AppError(400, 'INVALID_FILE', 'Only PNG, JPEG, WebP or GIF images are allowed'));
     }
   },
 });
@@ -72,6 +84,18 @@ router.delete('/', asyncHandler((req, res) => {
 // POST /me/avatar
 router.post('/avatar', uploadAvatar.single('file'), asyncHandler((req, res) => {
   if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'File is required');
+
+  // Удаляем предыдущие аватары этого пользователя с другим расширением,
+  // чтобы не оставался висячий файл (id фиксированной длины — чужие не заденем)
+  try {
+    for (const f of fs.readdirSync(AVATARS_DIR)) {
+      if (f.startsWith(`${req.user.id}.`) && f !== req.file.filename) {
+        fs.unlinkSync(path.join(AVATARS_DIR, f));
+      }
+    }
+  } catch {
+    // Directory issues are non-fatal for the upload
+  }
 
   const avatarUrl = `/uploads/avatars/${req.file.filename}`;
   users.update(req.user.id, { avatarUrl });

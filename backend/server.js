@@ -42,7 +42,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(spec));
 app.use(cors());
 app.use(express.json());
 app.use(requestId);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Публично раздаём только аватары; документы доступны лишь через авторизованный
+// GET /me/documents/:id. nosniff не даёт браузеру исполнять контент с чужим типом.
+app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads', 'avatars'), {
+  setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff'),
+}));
 
 // Routes
 app.use('/auth', authRoutes);

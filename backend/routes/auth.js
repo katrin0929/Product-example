@@ -142,6 +142,11 @@ router.post('/refresh', asyncHandler((req, res) => {
     throw new AppError(400, 'INVALID_TOKEN', 'Invalid or expired refresh token');
   }
 
+  // Только refresh-токен принимается здесь (не access, подсунутый в тело)
+  if (decoded.type !== 'refresh') {
+    throw new AppError(400, 'INVALID_TOKEN', 'Invalid or expired refresh token');
+  }
+
   // Check if refresh token exists in store
   const stored = refreshTokens.findById(refreshToken);
   if (!stored) {

@@ -13,6 +13,7 @@ const documents = new Store('documents.json');
 const refreshTokens = new Store('refresh-tokens.json');
 const exports_ = new Store('exports.json');
 const projects = new Store('projects.json');
+const counters = new Store('counters.json');
 
 // Seed products
 products.writeAll([
@@ -42,5 +43,6 @@ documents.writeAll([]);
 refreshTokens.writeAll([]);
 exports_.writeAll([]);
 projects.writeAll([]);
+counters.writeAll([]);
 
 console.log('Seed complete. Data files created in data/');

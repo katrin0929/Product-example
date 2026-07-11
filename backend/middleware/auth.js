@@ -17,6 +17,12 @@ function requireAuth(req, res, next) {
     return next(new AppError(401, 'UNAUTHORIZED', 'Invalid or expired token'));
   }
 
+  // Только access-токен: refresh-токен ('refresh') и админ-токен ('admin')
+  // не должны проходить как Bearer на пользовательских роутах
+  if (decoded.type !== 'access') {
+    return next(new AppError(401, 'UNAUTHORIZED', 'Invalid token type'));
+  }
+
   // Store lookup: удалённый или заблокированный пользователь теряет доступ сразу,
   // не дожидаясь истечения токена
   const user = users.findById(decoded.sub);

@@ -97,6 +97,8 @@ invoices.get('/', asyncHandler((req, res) => {
     const payment = payById.get(inv.paymentId);
     return {
       ...inv,
+      // Перекрываем user-путь (требует пользовательский токен) на admin-эндпоинт
+      downloadUrl: `/admin/invoices/${inv.id}/download`,
       userEmail: emails.get(inv.userId) ?? null,
       amount: payment ? payment.amount : null,
       currency: payment ? payment.currency : null,

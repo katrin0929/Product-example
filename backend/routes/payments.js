@@ -10,6 +10,7 @@ const productsStore = new Store('products.json');
 const checkoutsStore = new Store('checkouts.json');
 const paymentsStore = new Store('payments.json');
 const invoicesStore = new Store('invoices.json');
+const countersStore = new Store('counters.json');
 
 // Hardcoded promo codes: code -> { type, value }
 const PROMO_CODES = {
@@ -74,15 +75,26 @@ function notifyOwner(chk, title, body) {
   notifyUser(chk.userId, title, body);
 }
 
-// Номер выводится из данных, а не из счётчика в памяти — переживает рестарты
+// Монотонный счётчик в counters.json: переживает и рестарты, и каскадное удаление
+// инвойсов (которое иначе позволило бы переиспользовать номер удалённого юзера).
+// max с существующими инвойсами — миграция для данных без записи счётчика.
 function nextInvoiceNumber() {
   const year = new Date().getFullYear();
+  const counterId = `invoice-${year}`;
   const re = new RegExp(`^INV-${year}-(\\d+)$`);
-  const max = invoicesStore.readAll().reduce((acc, inv) => {
+
+  const maxFromInvoices = invoicesStore.readAll().reduce((acc, inv) => {
     const m = re.exec(inv.number || '');
     return m ? Math.max(acc, parseInt(m[1], 10)) : acc;
   }, 0);
-  return `INV-${year}-${String(max + 1).padStart(4, '0')}`;
+
+  const counter = countersStore.findById(counterId);
+  const next = Math.max(counter ? counter.value : 0, maxFromInvoices) + 1;
+
+  if (counter) countersStore.update(counterId, { value: next });
+  else countersStore.insert({ id: counterId, value: next });
+
+  return `INV-${year}-${String(next).padStart(4, '0')}`;
 }
 
 checkout.post('/', requireAuth, asyncHandler((req, res) => {

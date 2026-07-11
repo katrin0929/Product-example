@@ -14,9 +14,9 @@ function verifyToken(token) {
 }
 
 function generateTokens(user) {
-  const payload = { sub: user.id, email: user.email };
-  const accessToken = signAccessToken(payload);
-  const refreshToken = signRefreshToken(payload);
+  const base = { sub: user.id, email: user.email };
+  const accessToken = signAccessToken({ ...base, type: 'access' });
+  const refreshToken = signRefreshToken({ ...base, type: 'refresh' });
 
   const decoded = jwt.decode(accessToken);
   const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
