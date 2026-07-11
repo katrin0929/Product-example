@@ -3,6 +3,7 @@ import Login from '../pages/Login.vue'
 import CreditPacks from '../pages/CreditPacks.vue'
 import Users from '../pages/Users.vue'
 import Admins from '../pages/Admins.vue'
+import Billing from '../pages/Billing.vue'
 import AdminLayout from '../components/AdminLayout.vue'
 import { getToken } from '../utils'
 
@@ -20,6 +21,11 @@ const routes = [
         path: '',
         name: 'CreditPacks',
         component: CreditPacks,
+      },
+      {
+        path: 'billing',
+        name: 'Billing',
+        component: Billing,
       },
       {
         path: 'users',

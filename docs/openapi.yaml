@@ -267,7 +267,7 @@ components:
         credits: { type: integer, example: 5 }
         status:
           type: string
-          enum: [pending, paid, failed]
+          enum: [pending, paid, failed, refunded]
         createdAt: { type: string, format: date-time }
 
     PaymentMethod:
@@ -530,6 +530,56 @@ components:
         email: { type: string, format: email }
         password: { type: string, minLength: 8 }
         name: { type: string }
+
+    AdminCheckout:
+      type: object
+      required: [id, checkoutId, userId, productId, amount, currency, status, createdAt]
+      properties:
+        id: { type: string, example: chk_123 }
+        checkoutId: { type: string }
+        userId: { type: string, example: usr_123 }
+        userEmail: { type: string, format: email, nullable: true }
+        productId: { type: string }
+        productTitle: { type: string, example: Basic Pack }
+        amount: { type: integer }
+        currency: { type: string }
+        credits: { type: integer }
+        status:
+          type: string
+          enum: [pending, paid, failed]
+        createdAt: { type: string, format: date-time }
+
+    AdminPayment:
+      type: object
+      required: [id, userId, checkoutId, amount, currency, status, createdAt]
+      properties:
+        id: { type: string, example: pay_123 }
+        userId: { type: string, example: usr_123 }
+        userEmail: { type: string, format: email, nullable: true }
+        checkoutId: { type: string }
+        productTitle: { type: string, example: Basic Pack }
+        amount: { type: integer }
+        currency: { type: string }
+        credits: { type: integer }
+        status:
+          type: string
+          enum: [pending, paid, failed, refunded]
+        createdAt: { type: string, format: date-time }
+
+    AdminInvoice:
+      type: object
+      required: [id, userId, paymentId, number, createdAt]
+      properties:
+        id: { type: string, example: inv_123 }
+        userId: { type: string, example: usr_123 }
+        userEmail: { type: string, format: email, nullable: true }
+        paymentId: { type: string }
+        number: { type: string, example: "INV-2026-0001" }
+        amount: { type: integer, nullable: true }
+        currency: { type: string, nullable: true }
+        paymentStatus: { type: string, nullable: true, example: paid }
+        createdAt: { type: string, format: date-time }
+        downloadUrl: { type: string, nullable: true }
 
   responses:
     Unauthorized:
@@ -1063,6 +1113,25 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Invoice" }
 
+  /invoices/{invoiceId}/download:
+    get:
+      tags: [Invoices]
+      summary: Download own invoice as HTML
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: invoiceId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            text/html:
+              schema: { type: string }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
   /notifications:
     get:
       tags: [Notifications]
@@ -1456,6 +1525,116 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ApiError" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/checkouts:
+    get:
+      tags: [Admin]
+      summary: List all checkouts (enriched with user email and product title)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminCheckout" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/checkouts/{checkoutId}/cancel:
+    post:
+      tags: [Admin]
+      summary: Cancel a pending checkout (payment link stops working)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: checkoutId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Checkout" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/payments:
+    get:
+      tags: [Admin]
+      summary: List all payments (enriched with user email and product title)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminPayment" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/payments/{paymentId}/refund:
+    post:
+      tags: [Admin]
+      summary: Refund a paid payment (revokes spent total and credits)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Payment" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /admin/invoices:
+    get:
+      tags: [Admin]
+      summary: List all invoices (enriched with user email and payment amount)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminInvoice" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /admin/invoices/{invoiceId}/download:
+    get:
+      tags: [Admin]
+      summary: Download invoice as HTML
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: invoiceId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            text/html:
+              schema: { type: string }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }

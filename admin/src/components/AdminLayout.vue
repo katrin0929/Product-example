@@ -6,6 +6,7 @@ const { admin, fetchMe, signOut } = useAdminAuth()
 
 const tabs = [
   { to: '/', label: 'Credit Packs', icon: 'toll' },
+  { to: '/billing', label: 'Billing', icon: 'receipt_long' },
   { to: '/users', label: 'Users', icon: 'group' },
   { to: '/admins', label: 'Admins', icon: 'admin_panel_settings' },
 ]
