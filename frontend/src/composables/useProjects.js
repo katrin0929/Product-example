@@ -1,10 +1,9 @@
 import { ref } from "vue";
 import Modal from "@/components/Modal.vue";
-import { utils } from "../utils";
+import { authFetch } from "./useApi";
 
 export function useProjects() {
 
-  const { getTokens } = utils() 
   const isModalOpen = ref(false);
   const baseUrl = "http://localhost:3009"
   const isDownloading = ref(false);
@@ -19,37 +18,28 @@ export function useProjects() {
   }
 
    async function getProjects() {
-        const { accessToken } = getTokens();
-        const res = await fetch(`${baseUrl}/projects`, {
+        const res = await authFetch(`${baseUrl}/projects`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
-          },
+          headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {
           return await res.json();
-        } else {
-          alert("privet");
         }
+        return [];
     }
   async function deleteProj(projectId) {
-    const { accessToken } = getTokens();
     if (isDownloading.value) return;
     isDownloading.value = true;
 
     try {
-      return await fetch(`${baseUrl}/projects/${projectId}`, {
+      return await authFetch(`${baseUrl}/projects/${projectId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
       });
     } finally {
       isDownloading.value = false;
     }
-  } 
+  }
 
   return { isModalOpen, openModal, closeModal, Modal, getProjects, deleteProj };
 }

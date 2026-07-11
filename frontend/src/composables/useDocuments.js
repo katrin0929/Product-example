@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { utils } from "../utils";
+import { authFetch, uploadFile } from "./useApi";
 
 const BASE_URL = "http://localhost:3009";
 
@@ -47,29 +47,18 @@ function toCardModel(item) {
 
 // category: 'general' — страница Documents, 'identity' — секция на Profile
 export function useDocuments(category = "general") {
-  const { getTokens, uploadFile } = utils();
   const documents = ref([]);
   const loading = ref(false);
   const uploading = ref(false);
   const error = ref(null);
   const isDownloading = ref(false);
 
-
-
-  function authHeaders() {
-    const tokens = getTokens();
-    return tokens?.accessToken
-      ? { Authorization: `Bearer ${tokens.accessToken}` }
-      : {};
-  }
-
   async function fetchDocuments() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch(`${BASE_URL}/me/documents?category=${category}`, {
+      const res = await authFetch(`${BASE_URL}/me/documents?category=${category}`, {
         method: "GET",
-        headers: { ...authHeaders() },
       });
       if (!res.ok) throw new Error(`Failed to load documents (${res.status})`);
       const items = await res.json();
@@ -104,9 +93,8 @@ export function useDocuments(category = "general") {
     isDownloading.value = true; 
 
     try {
-      return await fetch(`${BASE_URL}/me/documents/${documentId}`, {
+      return await authFetch(`${BASE_URL}/me/documents/${documentId}`, {
         method: "GET",
-        headers: authHeaders(),
       });
     } finally {
       isDownloading.value = false;
@@ -118,14 +106,13 @@ export function useDocuments(category = "general") {
     isDownloading.value = true;
 
     try {
-      return await fetch(`${BASE_URL}/me/documents/${documentId}`, {
+      return await authFetch(`${BASE_URL}/me/documents/${documentId}`, {
         method: "DELETE",
-        headers: authHeaders(),
       });
     } finally {
       isDownloading.value = false;
     }
-  } 
+  }
 
   return {
     documents,

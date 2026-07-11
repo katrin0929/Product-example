@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { utils } from '../utils'
 import LogIn from '../pages/LogIn.vue'
 import Register from '../pages/Register.vue'
 import Verify from '../pages/Verify.vue'
@@ -56,6 +57,7 @@ const routes = [
   {
     path: "/",
     component: AppLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "/Dashboard",
@@ -123,6 +125,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// Нет токена → на защищённые страницы (дети AppLayout) не пускаем.
+// Протухший (но присутствующий) токен ловится на 401 через authFetch.
+router.beforeEach((to) => {
+  const requiresAuth = to.matched.some((r) => r.meta?.requiresAuth)
+  if (requiresAuth && !utils().getTokens()?.accessToken) {
+    return { name: "LogIn" }
+  }
 })
 
 export default router

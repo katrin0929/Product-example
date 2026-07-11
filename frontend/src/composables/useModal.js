@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import router from "../router/index";
-import { utils } from "../utils";
+import { authFetch } from "./useApi";
 
 export function useModal() {
     const baseUrl = "http://localhost:3009"
@@ -8,18 +8,15 @@ export function useModal() {
     const projDescription = ref('')
     const radioPublic = ref(true)
     const radioPrivate = ref(false)
-    const { getTokens } = utils()
 
     async function createProj() {
-        const { accessToken } = getTokens();
         if (projName && projDescription) {
             router.push("/Projects");
-            const res = await fetch(`${baseUrl}/projects`, {
+            const res = await authFetch(`${baseUrl}/projects`, {
 
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             title: projName.value,
@@ -27,12 +24,12 @@ export function useModal() {
           })
         });
         return await res.json();
-        
+
 
         } else {
             alert("Обязательные поля не заполнены")
         }
-      
+
     }
     return { baseUrl, projName, projDescription, radioPrivate, radioPublic, createProj }
 

@@ -1,11 +1,9 @@
 import router from "../router/index";
-import { ref } from "vue";
-import { utils } from "../utils";
+import { authFetch } from "./useApi";
 
 
 export function useProjectEdit() {
     const baseUrl = "http://localhost:3009";
-    const { getTokens } = utils()
     let defaultState = {}
 
 
@@ -15,9 +13,6 @@ export function useProjectEdit() {
     }
 
    async function saveChange(projectId, projectSettings) {
-    
-    
-     const { accessToken } = getTokens();
     const fields = ["title", "status", "description"];
     const data = fields.reduce((acc, field) => {
     if (defaultState[field] !== projectSettings[field]) {
@@ -25,12 +20,9 @@ export function useProjectEdit() {
     }
     return acc;
     }, {});
-     const res = await fetch(`${baseUrl}/projects/${projectId}`, {
+     const res = await authFetch(`${baseUrl}/projects/${projectId}`, {
        method: "PATCH",
-       headers: {
-         "Content-Type": "application/json",
-         Authorization: `Bearer ${accessToken}`,
-       },
+       headers: { "Content-Type": "application/json" },
        body: JSON.stringify(data),
      });
 
@@ -38,13 +30,9 @@ export function useProjectEdit() {
    }
 
    async function getProjectById(projectId) {
-        const { accessToken } = getTokens();
-        const res = await fetch(`${baseUrl}/projects/${projectId}`, {
+        const res = await authFetch(`${baseUrl}/projects/${projectId}`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
-          },
+          headers: { "Content-Type": "application/json" },
         });
         const project = await res.json();
         defaultState = {...project}

@@ -1,22 +1,17 @@
 import { ref } from "vue";
 import { utils } from "../utils";
+import { authFetch, uploadFile } from "./useApi";
 import router from "../router/index";
 
 
 export function useProfileSettings() {
   const baseUrl = "http://localhost:3009";
-  const { getTokens, clearTokens, uploadFile } = utils();
+  const { clearTokens } = utils();
   let defaultState = {};
   const error = ref(null);
   const isDownloading = ref(false)
 
-  function authJsonHeaders() {
-    const { accessToken } = getTokens();
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    };
-  }
+  const jsonHeaders = { "Content-Type": "application/json" };
 
   async function readError(res, fallback) {
     const body = await res.json().catch(() => null);
@@ -53,9 +48,9 @@ export function useProfileSettings() {
     }, {});
 
     const data = { ...data1, address: data2 };
-    const res = await fetch(`${baseUrl}/me`, {
+    const res = await authFetch(`${baseUrl}/me`, {
       method: "PATCH",
-      headers: authJsonHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify(data),
     });
     if (!res.ok) {
@@ -69,9 +64,8 @@ export function useProfileSettings() {
   }
 
   async function getUserById() {
-    const res = await fetch(`${baseUrl}/me`, {
+    const res = await authFetch(`${baseUrl}/me`, {
       method: "GET",
-      headers: authJsonHeaders(),
     });
     const user = await res.json();
     defaultState = { ...user };
@@ -92,9 +86,9 @@ export function useProfileSettings() {
 
   async function saveEmail(newEmail) {
     error.value = null;
-    const res = await fetch(`${baseUrl}/me/change-email`, {
+    const res = await authFetch(`${baseUrl}/me/change-email`, {
       method: "POST",
-      headers: authJsonHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify({ newEmail }),
     });
     if (!res.ok) {
@@ -106,9 +100,9 @@ export function useProfileSettings() {
 
   async function saveOTP(code) {
     error.value = null;
-    const res = await fetch(`${baseUrl}/me/confirm-email-change`, {
+    const res = await authFetch(`${baseUrl}/me/confirm-email-change`, {
       method: "POST",
-      headers: authJsonHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify({ code }),
     });
     if (!res.ok) {
@@ -120,9 +114,9 @@ export function useProfileSettings() {
 
   async function savePass(currentPassword, newPassword) {
     error.value = null;
-    const res = await fetch(`${baseUrl}/me/change-password`, {
+    const res = await authFetch(`${baseUrl}/me/change-password`, {
       method: "POST",
-      headers: authJsonHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify({
         currentPassword,
         newPassword,
@@ -137,9 +131,8 @@ export function useProfileSettings() {
 
   async function deleteAccount() {
     error.value = null;
-    const res = await fetch(`${baseUrl}/me`, {
+    const res = await authFetch(`${baseUrl}/me`, {
       method: "DELETE",
-      headers: authJsonHeaders(),
     });
     if (!res.ok) {
       error.value = await readError(res, `Account deletion failed (${res.status})`);
@@ -156,9 +149,8 @@ export function useProfileSettings() {
      isDownloading.value = true;
 
      try {
-       return await fetch(`${baseUrl}/me/documents/${documentId}`, {
+       return await authFetch(`${baseUrl}/me/documents/${documentId}`, {
          method: "GET",
-         headers: authJsonHeaders(),
        });
      } finally {
        isDownloading.value = false;
@@ -170,14 +162,13 @@ export function useProfileSettings() {
      isDownloading.value = true;
 
      try {
-       return await fetch(`${baseUrl}/me/documents/${documentId}`, {
+       return await authFetch(`${baseUrl}/me/documents/${documentId}`, {
          method: "DELETE",
-         headers: authJsonHeaders(),
        });
      } finally {
        isDownloading.value = false;
      }
-   } 
+   }
 
 
   return {
