@@ -1,5 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { usePurchase } from "@/composables/usePurchase";
+import { onMounted, ref } from "vue";
+
+const { fetchProducts, products, createCheckout } = usePurchase()
+
+const curProductId = ref('')
+const subtotal = ref('')
 
 const creditPacks = ref([
   { qty: 5, price: '$20', popular: false, select: true },
@@ -7,11 +13,19 @@ const creditPacks = ref([
   { qty: 30, price: '$120', popular: false, select: false },
 ])
 
-const selectPack = (qty) => {
-  creditPacks.value.forEach((pack) => {
+const selectPack = (qty, productId, amount) => {
+  curProductId.value = productId;
+  subtotal.value = amount
+   console.log(subtotal.value);
+  products.value.forEach((pack) => {
     pack.select = pack.qty === qty
   })
 }
+
+onMounted(() => {
+  fetchProducts()
+  
+})
 </script>
 
 <template>
@@ -28,8 +42,8 @@ const selectPack = (qty) => {
 
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-5">
       <div class="grid grid-cols-3 gap-2">
-        <button @click="selectPack(pack.qty)"
-          v-for="pack in creditPacks"
+        <button @click="selectPack(pack.qty, pack.id, pack.subtotal)"
+          v-for="pack in products"
           :key="pack.qty"
           type="button"
           :class="pack.select
@@ -50,11 +64,11 @@ const selectPack = (qty) => {
         <p class="flex items-center gap-1 text-xs text-emerald-600 font-medium mt-2"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">check_circle</span>Code applied — 20% off</p>
       </div>
       <div class="space-y-1.5 pt-2 border-t border-slate-100 text-sm">
-        <div class="flex justify-between text-on-surface-variant"><span>Subtotal</span><span>$56.00</span></div>
+        <div class="flex justify-between text-on-surface-variant"><span>Subtotal</span><span>${{ subtotal }}</span></div>
         <div class="flex justify-between text-emerald-600"><span>Discount (ATELIER20)</span><span>−$11.20</span></div>
         <div class="flex justify-between text-on-surface font-bold text-base pt-1"><span>Total</span><span>$44.80</span></div>
       </div>
-      <button type="button" class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity flex items-center justify-center gap-2"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">lock</span>Pay $44.80</button>
+      <button @click="createCheckout(curProductId)" type="button" class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity flex items-center justify-center gap-2"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">lock</span>Pay $44.80</button>
       <p class="flex items-center justify-center gap-1 text-[0.6875rem] text-slate-400"><span class="material-symbols-outlined text-sm">verified_user</span>Secure pseudo-payment · test mode</p>
     </div>
   </main>

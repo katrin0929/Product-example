@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@mertasan/tailwindcss-variables": "^2.7.0"
+  }
+}

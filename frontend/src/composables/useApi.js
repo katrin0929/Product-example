@@ -40,6 +40,7 @@ export async function uploadFile(file, uploadPath, extraFields = {}) {
 
   try {
     // FormData: Content-Type с boundary выставит браузер, Authorization — authFetch
+
     const res = await authFetch(`${BASE_URL}/me/${uploadPath}`, {
       method: "POST",
       body: formData,
