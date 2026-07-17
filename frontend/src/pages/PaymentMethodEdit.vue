@@ -1,4 +1,8 @@
 <script setup>
+import { usePaymentMethodEdit } from '@/composables/usePaymentMethodEdit';
+
+const { savePaymentMethod } = usePaymentMethodEdit()
+
 </script>
 
 <template>
@@ -46,7 +50,7 @@
       </label>
 
       <div class="flex gap-3 pt-2">
-        <button type="button" class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity">
+        <button @click="savePaymentMethod" type="button" class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity">
           <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1">save</span>
           Save changes
         </button>
