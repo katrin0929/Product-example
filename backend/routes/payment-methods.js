@@ -45,6 +45,19 @@ function unsetOtherDefaults(userId, exceptId) {
     .forEach((pm) => paymentMethods.update(pm.id, { isDefault: false, updatedAt: now }));
 }
 
+// GET /payment-methods — list current user's payment methods
+router.get('/', asyncHandler((req, res) => {
+  const methods = paymentMethods
+    .filterBy('userId', req.user.id)
+    .sort((a, b) => {
+      if (a.isDefault !== b.isDefault) return a.isDefault ? -1 : 1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    })
+    .map(sanitize);
+
+  res.json(methods);
+}));
+
 // POST /payment-methods — add payment method
 router.post('/', asyncHandler((req, res) => {
   const { cardNumber, cardholderName, expMonth, expYear, isDefault } = req.body;
