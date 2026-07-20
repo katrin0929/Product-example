@@ -12,7 +12,8 @@ const urlId = url.params.id
 
 
 onMounted(async() => {
-    data.value = await getProjectById(urlId)    
+    data.value = await getProjectById(urlId)
+    console.log(data.value);
 })
 
 </script>

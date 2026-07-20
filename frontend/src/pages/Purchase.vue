@@ -5,7 +5,7 @@ import { onMounted, ref } from "vue";
 const { fetchProducts, products, createCheckout } = usePurchase()
 
 const curProductId = ref('')
-const subtotal = ref('')
+const subtotal = ref(0)
 
 const creditPacks = ref([
   { qty: 5, price: '$20', popular: false, select: true },
@@ -15,7 +15,7 @@ const creditPacks = ref([
 
 const selectPack = (qty, productId, amount) => {
   curProductId.value = productId;
-  subtotal.value = amount
+  subtotal.value = amount 
    console.log(subtotal.value);
   products.value.forEach((pack) => {
     pack.select = pack.qty === qty
@@ -52,7 +52,7 @@ onMounted(() => {
         >
           <span v-if="pack.popular" class="absolute -top-2 right-2 text-[0.5625rem] font-bold bg-primary text-on-primary px-1.5 py-0.5 rounded-full">Popular</span>
           <span class="text-lg font-extrabold headline">{{ pack.qty }}</span>
-          <span :class="pack.popular ? 'text-[0.625rem]' : 'text-[0.625rem] text-on-surface-variant'">{{ pack.price }}</span>
+          <span :class="pack.popular ? 'text-[0.625rem]' : 'text-[0.625rem] text-on-surface-variant'">{{ pack.subtotal }}</span>
         </button>
       </div>
       <div>

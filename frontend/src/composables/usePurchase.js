@@ -19,13 +19,15 @@ import router from "../router/index";
         console.log(items);
         
         products.value = items.map(toCreditPack);
+        console.log(products.value);
+        
         } catch (e) {
         console.log(e.message);
         }
     }
 
     function toCreditPack(item) {
-        return { qty: item.credits, id: item.id, price: item.amount, subtotal: item.amount, popular: false, select: false };
+        return { qty: item.credits, id: item.id, price: item.amount, subtotal: item.amount / 100, popular: false, select: false };
         
     }
 

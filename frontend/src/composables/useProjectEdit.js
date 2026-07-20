@@ -11,8 +11,10 @@ export function useProjectEdit() {
     function openProjectEdit(id) {
       router.push(`/ProjSet/${id}`);
     }
+    
 
    async function saveChange(projectId, projectSettings) {
+    console.log(`вызов из useProjectEdit - ${JSON.stringify(projectSettings)}`);
     const fields = ["title", "status", "description"];
     const data = fields.reduce((acc, field) => {
     if (defaultState[field] !== projectSettings[field]) {

@@ -1,17 +1,10 @@
 <script setup>
-const totalSpent = "$10000"
-const availableCredits = "14"
-const paymentPendingAmount = "$50"
-const paymentPendingCount = "1"
+import { useBilling } from '@/composables/useBilling'
+import { onMounted, ref } from 'vue'
 
+const { getPaymentMethods } = useBilling()
 
-
-
-const summary = [
-  { icon: 'account_balance_wallet', tone: 'bg-indigo-50 text-primary', tag: 'Lifetime', value: '$2,480.00', label: 'Total Spent' },
-  { icon: 'toll', tone: 'bg-emerald-50 text-emerald-600', tag: 'Balance', value: '14', label: 'Available Credits' },
-  { icon: 'hourglass_top', tone: 'bg-amber-50 text-amber-600', tag: 'Processing', value: '$49.00', label: '1 Payment Pending' },
-]
+const paymentsMethodData = ref([])
 
 const statusClass = {
   Paid: { pill: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
@@ -28,6 +21,10 @@ const payments = [
   { invoice: 'INV-2026-0087', desc: 'Pro Credits — 14 pack', date: 'Mar 19, 2026', amount: '$56.00', status: 'Failed' },
   { invoice: 'INV-2026-0061', desc: 'Pro Credits — 5 pack', date: 'Feb 07, 2026', amount: '$20.00', status: 'Paid' },
 ]
+
+onMounted(async() => {
+  paymentsMethodData.value = await getPaymentMethods();
+})
 
 </script>
 
@@ -123,11 +120,13 @@ const payments = [
 
     <!-- Payment method -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-4">
-      <div class="flex items-center justify-between"><h3 class="text-lg font-bold tracking-tight headline">Payment Method</h3><router-link :to="{ name: 'PaymentMethodEdit' }" class="text-primary text-sm font-bold hover:underline">Edit</router-link></div>
-      <div class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low">
+      <div class="flex items-center justify-between"><h3 class="text-lg font-bold tracking-tight headline">Payment Method</h3></div>
+      
+      <div v-for="payment in paymentsMethodData" class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low">
         <div class="w-12 h-8 rounded bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-[0.625rem] font-extrabold tracking-wider">VISA</div>
-        <div class="flex-1"><p class="text-sm font-semibold text-on-surface">•••• •••• •••• 4242</p><p class="text-xs text-on-surface-variant">Expires 09 / 2028</p></div>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-emerald-100 text-emerald-700">Default</span>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface">•••• •••• •••• {{ payment.last4 }}</p><p class="text-xs text-on-surface-variant">{{ payment.expMonth }} / {{ payment.expYear }}</p></div>
+        <div class="contents"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-emerald-100 text-emerald-700">{{ payment.isDefault? 'Default' : "" }}</span>
+        <router-link :to="{ name: 'PaymentMethodEdit', query: { id: payment.id } }" class="text-primary text-sm font-bold hover:underline">Edit</router-link></div>
       </div>
       <router-link :to="{ name: 'PaymentMethodAdd' }" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">add</span>Add payment method</router-link>
     </div>

@@ -1,7 +1,22 @@
 <script setup>
+import { onMounted, ref } from "vue";
 import { usePaymentMethodEdit } from '@/composables/usePaymentMethodEdit';
+import { useRoute } from "vue-router";
 
 const { savePaymentMethod } = usePaymentMethodEdit()
+
+const paymentMethodId = ref('')
+const route = useRoute();
+const data = ref({
+  "cardholderName": "",
+  "expiryMonth": "",
+  "expiryYear": "",
+  "checkbox": true
+})
+
+onMounted(() => {
+  paymentMethodId.value = route.query.id;
+})
 
 </script>
 
@@ -26,17 +41,17 @@ const { savePaymentMethod } = usePaymentMethodEdit()
 
       <div>
         <label class="text-xs font-medium text-on-surface-variant">Cardholder name</label>
-        <input value="Jane Doe" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
+        <input v-model="data.cardholderName" placeholder="Cardholder name" value="Jane Doe" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-xs font-medium text-on-surface-variant">Expiry month</label>
-          <input value="09" placeholder="MM" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
+          <input v-model="data.expiryMonth" value="09" placeholder="MM" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
         </div>
         <div>
           <label class="text-xs font-medium text-on-surface-variant">Expiry year</label>
-          <input value="2028" placeholder="YYYY" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
+          <input v-model="data.expiryYear" value="2028" placeholder="YYYY" class="w-full mt-1.5 bg-surface-container-low border-none rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim"/>
         </div>
       </div>
 
@@ -45,12 +60,12 @@ const { savePaymentMethod } = usePaymentMethodEdit()
           <p class="text-sm font-semibold text-on-surface">Set as default</p>
           <p class="text-xs text-on-surface-variant">Use this card for all future payments</p>
         </div>
-        <input type="checkbox" checked class="sr-only peer"/>
+        <input v-model="data.checkbox" type="checkbox" checked class="sr-only peer"/>
         <span class="relative w-11 h-6 shrink-0 rounded-full bg-slate-300 peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"></span>
       </label>
 
       <div class="flex gap-3 pt-2">
-        <button @click="savePaymentMethod" type="button" class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity">
+        <button @click="savePaymentMethod(paymentMethodId, data)" type="button" class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-lg font-bold shadow-[0_10px_20px_rgba(79,70,229,0.18)] hover:opacity-90 transition-opacity">
           <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1">save</span>
           Save changes
         </button>
