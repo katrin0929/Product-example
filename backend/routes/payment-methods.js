@@ -58,6 +58,19 @@ router.get('/', asyncHandler((req, res) => {
   res.json(methods);
 }));
 
+// GET /payment-methods/:id — fetch a single payment method
+router.get('/:id', asyncHandler((req, res) => {
+  const pm = paymentMethods.findById(req.params.id);
+  if (!pm) {
+    throw new AppError(404, 'NOT_FOUND', 'Payment method not found');
+  }
+  if (pm.userId !== req.user.id) {
+    throw new AppError(403, 'FORBIDDEN', 'This payment method belongs to another user');
+  }
+
+  res.json(sanitize(pm));
+}));
+
 // POST /payment-methods — add payment method
 router.post('/', asyncHandler((req, res) => {
   const { cardNumber, cardholderName, expMonth, expYear, isDefault } = req.body;

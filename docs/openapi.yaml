@@ -1079,6 +1079,32 @@ paths:
         "401": { $ref: "#/components/responses/Unauthorized" }
 
   /payment-methods/{paymentMethodId}:
+    get:
+      tags: [Payment Methods]
+      summary: Get a payment method by id
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: paymentMethodId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
     patch:
       tags: [Payment Methods]
       summary: Update payment method fields
