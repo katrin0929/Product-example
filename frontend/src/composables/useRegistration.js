@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { utils } from '../utils'
+import  router  from '../router/index'
 
 export function useRegistration() {
   const baseUrl = "http://localhost:3009"
@@ -20,14 +21,20 @@ export function useRegistration() {
         email: email.value,
         password: confirm.value
       }),
+
     });
+
+     if (res.ok) {
+      const data = await res.json()
+      setData(email.value, data.code);
+      router.push('/Verify');
+      }
     
-    return await res.json()
+
   }
 
   async function handleSubmit() {
     const res = await createAccount();
-    setData(email.value, res.code)
   }
 
   return { baseUrl, email, password, confirm, checkbox, createAccount, handleSubmit }

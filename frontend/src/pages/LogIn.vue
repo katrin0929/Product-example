@@ -1,7 +1,18 @@
 <script setup>
 import { useAuth } from '@/composables/useAuth'
+import { onMounted } from 'vue';
+import  router  from '../router/index'
+import { utils } from '../utils'
 
 const { email, password, checkbox, signIn } = useAuth()
+const { checkLoginSave } = utils()
+
+onMounted(() => {
+   const res = checkLoginSave()
+   if(res) {
+    router.push('/Dashboard')
+   }
+})
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { utils } from '../utils'
+import router from "../router/index";
 
 
 export function useVerify() {
@@ -26,8 +27,10 @@ function getDataFromLocalStorage() {
             code: otp.value
         })
     });
-    
-    return await res.json()
+    if(res.ok) {
+      router.push('/LogIn')
+    }
+
   }
   
   return { verify }

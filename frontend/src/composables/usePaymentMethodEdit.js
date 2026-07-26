@@ -7,6 +7,12 @@ const BASE_URL = "http://localhost:3009";
 
 
 export function usePaymentMethodEdit() {
+    const data = ref({
+      cardholderName: "",
+      expMonth: "",
+      expYear: "",
+      isDefault: true,
+    });
 
     let defaultState = {};
 
@@ -14,9 +20,9 @@ export function usePaymentMethodEdit() {
       
       const fields = [
         "cardholderName",
-        "expiryMonth",
-        "expiryYear",
-        "checkbox",
+        "expMonth",
+        "expYear",
+        "isDefault",
       ];
 
       console.log(fields);
@@ -44,5 +50,20 @@ export function usePaymentMethodEdit() {
 
       return await res.json();
     }
-    return { savePaymentMethod }
+
+    async function getPaymentMethod(paymentMethodId) {
+      const res = await authFetch(
+        `${BASE_URL}/payment-methods/${paymentMethodId}`,
+        {
+          method: "GET",
+        },
+      );
+
+      const paymentData = await res.json();
+      data.value.cardholderName = paymentData.cardholderName
+      data.value.expMonth = paymentData.expMonth
+      data.value.expYear = paymentData.expYear
+      data.value.isDefault = paymentData.isDefault
+    }
+    return { savePaymentMethod, getPaymentMethod, data }
 }

@@ -25,7 +25,8 @@ export function useAuth() {
         if (res.ok) {
             const { tokens } = await res.json()
             const { accessToken, refreshToken, expiresIn } = tokens
-            setTokens(accessToken, refreshToken, expiresIn)
+            const time = Date.now()
+            setTokens(accessToken, refreshToken, expiresIn, checkbox.value, time)
             router.push('/Dashboard');
         } else {
             alert("privet")
