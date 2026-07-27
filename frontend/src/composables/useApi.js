@@ -5,6 +5,7 @@ const BASE_URL = "http://localhost:3009";
 
 // Единая реакция на 401 с защищённой страницы: чистим токены и уводим на логин.
 export function handleUnauthorized() {
+
   utils().clearTokens();
   if (router.currentRoute.value.name !== "LogIn") {
     router.push("/LogIn");
@@ -15,6 +16,14 @@ export function handleUnauthorized() {
 // и на 401 делает handleUnauthorized. Возвращает сырой Response —
 // вызывающий код сохраняет свою логику res.ok / res.json() / blob.
 export async function authFetch(url, options = {}) {
+  const { isNeedRefreshTokens } = utils();
+  
+  try {
+    await isNeedRefreshTokens();
+  } catch(e) {
+    throw new Error(`Error isNeedRefreshTokens: ${e}`);
+  }
+  
   const tokens = utils().getTokens();
   const headers = { ...(options.headers || {}) };
   if (tokens?.accessToken) {

@@ -16,19 +16,22 @@ function getDataFromLocalStorage() {
 }
 
   async function verify() { 
-    getDataFromLocalStorage()
-    const res = await fetch(`${baseUrl}/auth/verify-email`, {
-        method: 'POST',
+    try {
+      getDataFromLocalStorage();
+      
+      await fetch(`${baseUrl}/auth/verify-email`, {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            email: email.value,
-            code: otp.value
-        })
-    });
-    if(res.ok) {
+          email: email.value,
+          code: otp.value,
+        }),
+      });
       router.push('/LogIn')
+    } catch(e) {
+      throw new Error(`Error verify: ${e}`)
     }
 
   }

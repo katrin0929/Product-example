@@ -6,7 +6,7 @@ import router from "../router/index";
 
 export function useProfileSettings() {
   const baseUrl = "http://localhost:3009";
-  const { clearTokens, isNeedRefreshTokens } = utils();
+  const { clearTokens } = utils();
   let defaultState = {};
   const error = ref(null);
   const isDownloading = ref(false)
@@ -48,7 +48,6 @@ export function useProfileSettings() {
     }, {});
 
     const data = { ...data1, address: data2 };
-    isNeedRefreshTokens()
     const res = await authFetch(`${baseUrl}/me`, {
       method: "PATCH",
       headers: jsonHeaders,
@@ -65,7 +64,6 @@ export function useProfileSettings() {
   }
 
   async function getUserById() {
-    isNeedRefreshTokens();
     const res = await authFetch(`${baseUrl}/me`, {
       method: "GET",
     });
@@ -77,7 +75,6 @@ export function useProfileSettings() {
   async function uploadAvatar(file) {
     if (!file) return false;
     error.value = null;
-    isNeedRefreshTokens();
     const msg = await uploadFile(file, "avatar");
     if (msg) {
       error.value = msg;
@@ -88,7 +85,6 @@ export function useProfileSettings() {
 
   async function saveEmail(newEmail) {
     error.value = null;
-    isNeedRefreshTokens();
     const res = await authFetch(`${baseUrl}/me/change-email`, {
       method: "POST",
       headers: jsonHeaders,
@@ -103,7 +99,6 @@ export function useProfileSettings() {
 
   async function saveOTP(code) {
     error.value = null;
-    isNeedRefreshTokens();
     const res = await authFetch(`${baseUrl}/me/confirm-email-change`, {
       method: "POST",
       headers: jsonHeaders,
@@ -118,7 +113,6 @@ export function useProfileSettings() {
 
   async function savePass(currentPassword, newPassword) {
     error.value = null;
-    isNeedRefreshTokens();
     const res = await authFetch(`${baseUrl}/me/change-password`, {
       method: "POST",
       headers: jsonHeaders,
@@ -136,7 +130,6 @@ export function useProfileSettings() {
 
   async function deleteAccount() {
     error.value = null;
-    isNeedRefreshTokens();
     const res = await authFetch(`${baseUrl}/me`, {
       method: "DELETE",
     });
@@ -155,7 +148,6 @@ export function useProfileSettings() {
      isDownloading.value = true;
 
      try {
-       isNeedRefreshTokens();
        return await authFetch(`${baseUrl}/me/documents/${documentId}`, {
          method: "GET",
        });
@@ -169,7 +161,6 @@ export function useProfileSettings() {
      isDownloading.value = true;
 
      try {
-       await isNeedRefreshTokens();
        return await authFetch(`${baseUrl}/me/documents/${documentId}`, {
          method: "DELETE",
        });

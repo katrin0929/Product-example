@@ -8,6 +8,8 @@ const { email, password, checkbox, signIn } = useAuth()
 const { checkLoginSave } = utils()
 
 onMounted(() => {
+   console.log(123);
+   
    const res = checkLoginSave()
    if(res) {
     router.push('/Dashboard')

@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { authFetch } from "./useApi";
 
 const BASE_URL = "http://localhost:3009";
 
@@ -14,7 +15,7 @@ export function usePayment() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch(`${BASE_URL}/checkout/${checkoutId}`);
+      const res = await authFetch(`${BASE_URL}/checkout/${checkoutId}`);
       if (res.status === 404) {
         notFound.value = true;
         return null;
@@ -35,7 +36,7 @@ export function usePayment() {
     processing.value = true;
     error.value = null;
     try {
-      const res = await fetch(`${BASE_URL}/checkout/${checkoutId}/${action}`, {
+      const res = await authFetch(`${BASE_URL}/checkout/${checkoutId}/${action}`, {
         method: "POST",
       });
       const data = await res.json();

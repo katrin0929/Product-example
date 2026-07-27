@@ -34,7 +34,7 @@ export function useRegistration() {
   }
 
   async function handleSubmit() {
-    const res = await createAccount();
+    await createAccount();
   }
 
   return { baseUrl, email, password, confirm, checkbox, createAccount, handleSubmit }
