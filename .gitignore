@@ -43,3 +43,5 @@ design
 # Claude working artifacts (local-only)
 plans/
 design-export/
+.obsidian
+docs
