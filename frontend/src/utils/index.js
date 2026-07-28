@@ -38,18 +38,20 @@ export function utils() {
             refreshToken,
           }),
         });
-        const data = await res.json();
-        utils().setTokens(
-          data.tokens.accessToken,
-          data.tokens.refreshToken,
-          data.tokens.expiresIn,
-          checkbox,
-          curTime,
-        );
+
+        if(res.ok) {
+          const data = await res.json();
+          utils().setTokens(
+            data.tokens.accessToken,
+            data.tokens.refreshToken,
+            data.tokens.expiresIn,
+            checkbox,
+            curTime,
+          );
+        }
       } catch (e) {
         router.push("/LogIn");
         throw new Error(`Error refreshToken: ${e}`);
-        
       }
     },
 
@@ -69,20 +71,29 @@ export function utils() {
       return now - time < 24 * 3600 * 1000;
     },
 
-    isNeedRefreshTokens: async () => {
+    isNeedRefreshTokens: () => {
       if (!tokens) return utils().clearTokens();
 
       const { checkbox } = tokens;
       const isUnder24Hours = utils().checkLoginSaveForDay();
       const isUnder30Days = utils().checkLoginSave();
 
-      if (checkbox && !isUnder30Days) {
-        return utils().clearTokens();
-      }
-
-      if (!checkbox && !isUnder24Hours) {
-        await utils().refreshTokens();
+      if (checkbox && isUnder30Days && !isUnder24Hours) {
+        return true;
+      } else {
+        return false
       }
     },
+
+    refreshTokensIfNeeded: async () => {
+      if(utils().isNeedRefreshTokens()) {
+       await utils().refreshTokens()
+      }
+    },
+
+    isAuthStateCorrect: () => {
+      const isUnder24Hours = utils().checkLoginSaveForDay();
+      return isUnder24Hours
+    }
   };
 }

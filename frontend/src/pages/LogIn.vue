@@ -5,12 +5,10 @@ import  router  from '../router/index'
 import { utils } from '../utils'
 
 const { email, password, checkbox, signIn } = useAuth()
-const { checkLoginSave } = utils()
+const { isAuthStateCorrect } = utils()
 
 onMounted(() => {
-   console.log(123);
-   
-   const res = checkLoginSave()
+   const res = isAuthStateCorrect()
    if(res) {
     router.push('/Dashboard')
    }

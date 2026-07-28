@@ -58,12 +58,14 @@ export function usePaymentMethodEdit() {
           method: "GET",
         },
       );
+      if(res.ok) {
+        const paymentData = await res.json();
+        data.value.cardholderName = paymentData.cardholderName;
+        data.value.expMonth = paymentData.expMonth;
+        data.value.expYear = paymentData.expYear;
+        data.value.isDefault = paymentData.isDefault;
+      }
 
-      const paymentData = await res.json();
-      data.value.cardholderName = paymentData.cardholderName
-      data.value.expMonth = paymentData.expMonth
-      data.value.expYear = paymentData.expYear
-      data.value.isDefault = paymentData.isDefault
     }
     return { savePaymentMethod, getPaymentMethod, data }
 }

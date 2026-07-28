@@ -16,10 +16,10 @@ export function handleUnauthorized() {
 // и на 401 делает handleUnauthorized. Возвращает сырой Response —
 // вызывающий код сохраняет свою логику res.ok / res.json() / blob.
 export async function authFetch(url, options = {}) {
-  const { isNeedRefreshTokens } = utils();
-  
+  const { refreshTokensIfNeeded } = utils();
+
   try {
-    await isNeedRefreshTokens();
+    await refreshTokensIfNeeded();
   } catch(e) {
     throw new Error(`Error isNeedRefreshTokens: ${e}`);
   }

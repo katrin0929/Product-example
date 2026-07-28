@@ -18,7 +18,7 @@ function getDataFromLocalStorage() {
   async function verify() { 
     try {
       getDataFromLocalStorage();
-      
+
       await fetch(`${baseUrl}/auth/verify-email`, {
         method: "POST",
         headers: {
@@ -29,7 +29,9 @@ function getDataFromLocalStorage() {
           code: otp.value,
         }),
       });
-      router.push('/LogIn')
+      if(res.ok) {
+        router.push("/LogIn");
+      }
     } catch(e) {
       throw new Error(`Error verify: ${e}`)
     }
